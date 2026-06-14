@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0a1a"/>
+<meta name="description" content="Study Superz — India's Most Advanced AI EdTech Platform by Nitish Yadav"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Study Superz | Empower Your Learning</title>
+<link rel="manifest" href="manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--a5:#ec4899;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--g3:rgba(255,255,255,.12);--b:rgba(255,255,255,.08);--b2:rgba(124,58,237,.35);--b3:rgba(6,182,212,.3);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;cursor:none;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--a);border-radius:2px;}
+
+/* CURSOR */
+#cur{position:fixed;width:10px;height:10px;background:var(--a);border-radius:50%;pointer-events:none;z-index:99999;mix-blend-mode:screen;transition:transform .1s;transform:translate(-50%,-50%);}
+#cur2{position:fixed;width:32px;height:32px;border:1.5px solid rgba(124,58,237,.5);border-radius:50%;pointer-events:none;z-index:99998;transition:all .25s ease;transform:translate(-50%,-50%);}
+
+/* LOADER */
+#loader{position:fixed;inset:0;z-index:99990;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity .6s,visibility .6s;}
+#loader.out{opacity:0;visibility:hidden;pointer-events:none;}
+.ld-logo{width:80px;height:80px;border-radius:20px;animation:ldSpin 2s ease-in-out infinite alternate;}
+@keyframes ldSpin{0%{transform:scale(1) rotate(-3deg);filter:drop-shadow(0 0 20px rgba(124,58,237,.7));}100%{transform:scale(1.1) rotate(3deg);filter:drop-shadow(0 0 40px rgba(6,182,212,.9));}}
+.ld-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ld-bar{width:220px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2),var(--a3));animation:ldFill 2.2s ease-in-out forwards;}
+@keyframes ldFill{0%{width:0}100%{width:100%}}
+.ld-sub{font-size:13px;color:var(--t3);animation:ldPulse 1.5s ease-in-out infinite;}
+@keyframes ldPulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* PROGRESS BAR */
+#pgbar{position:fixed;top:0;left:0;height:2px;z-index:10010;background:linear-gradient(90deg,var(--a),var(--a2),var(--a3));transition:width .1s;width:0;}
+
+/* CANVAS */
+#bgc{position:fixed;inset:0;z-index:0;opacity:.5;}
+.noise{position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");z-index:1;pointer-events:none;}
+
+/* TOAST */
+#toast{position:fixed;top:80px;right:20px;z-index:20000;padding:12px 20px;border-radius:12px;background:var(--bg2);border:1px solid var(--b);font-size:13px;color:var(--t);box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateX(130%);transition:transform .35s;max-width:300px;}
+#toast.show{transform:translateX(0);}
+#toast.s{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.08);color:#10b981;}
+#toast.e{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#ef4444;}
+
+/* NOTIF BAR */
+#nbar{position:fixed;top:58px;left:0;right:0;z-index:999;padding:10px 24px;background:linear-gradient(90deg,rgba(124,58,237,.12),rgba(6,182,212,.08));border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:12px;transform:translateY(-100%);transition:transform .3s;}
+#nbar.show{transform:translateY(0);}
+.nb-txt{flex:1;font-size:13px;color:var(--t2);}
+.nb-yes{padding:6px 14px;border-radius:7px;background:var(--a);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;}
+.nb-no{padding:6px 12px;border-radius:7px;background:var(--g);border:1px solid var(--b);color:var(--t3);font-size:12px;cursor:pointer;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:14px 32px;display:flex;align-items:center;gap:10px;background:rgba(6,6,18,.88);backdrop-filter:blur(24px);border-bottom:1px solid var(--b);transition:all .3s;}
+nav.sc{padding:10px 32px;}
+.nlogo{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none;}
+.nlogo img{width:36px;height:36px;border-radius:10px;}
+.nbrand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,var(--t),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nlinks{display:flex;align-items:center;gap:2px;}
+.nl{padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;transition:all .2s;}
+.nl:hover{color:var(--t);background:var(--g2);}
+.nact{display:flex;align-items:center;gap:8px;}
+.btn-g{padding:8px 16px;border-radius:9px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-g:hover{background:var(--g2);color:var(--t);}
+.btn-p{padding:9px 20px;border-radius:9px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .3s;box-shadow:0 4px 16px rgba(124,58,237,.3);}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,58,237,.5);}
+.burg{display:none;flex-direction:column;gap:5px;padding:6px;cursor:pointer;background:none;border:none;}
+.burg span{width:22px;height:2px;background:var(--t2);border-radius:1px;transition:all .3s;}
+.uava{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--a),var(--a2));border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;display:none;}
+
+/* DRAWER */
+#drawer{position:fixed;top:0;right:-100%;width:280px;height:100vh;background:var(--bg2);border-left:1px solid var(--b);z-index:9990;padding:80px 24px 32px;display:flex;flex-direction:column;gap:5px;transition:right .3s cubic-bezier(.4,0,.2,1);}
+#drawer.open{right:0;}
+.dlnk{padding:13px 16px;border-radius:10px;color:var(--t2);font-size:14px;font-weight:500;display:block;text-decoration:none;transition:all .2s;}
+.dlnk:hover{background:var(--g2);color:var(--t);}
+
+/* THOUGHT STRIP */
+.thought{position:relative;z-index:2;padding:14px 32px;background:linear-gradient(90deg,rgba(124,58,237,.07),rgba(6,182,212,.05),rgba(245,158,11,.05));border-bottom:1px solid var(--b);display:flex;align-items:center;gap:14px;overflow:hidden;}
+.th-lbl{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--a3);white-space:nowrap;padding:4px 10px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:5px;flex-shrink:0;}
+.th-txt{font-size:13px;color:var(--t2);font-style:italic;white-space:nowrap;animation:scrollTxt 30s linear infinite;}
+@keyframes scrollTxt{0%{transform:translateX(50vw)}100%{transform:translateX(-100%)}}
+
+/* HERO */
+#hero{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 32px 80px;text-align:center;overflow:hidden;}
+.orbs{position:absolute;inset:0;pointer-events:none;}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);animation:orbF 8s ease-in-out infinite;}
+.o1{width:500px;height:500px;background:rgba(124,58,237,.18);top:-120px;left:-120px;animation-delay:0s;}
+.o2{width:400px;height:400px;background:rgba(6,182,212,.12);bottom:-80px;right:-80px;animation-delay:3s;}
+.o3{width:320px;height:320px;background:rgba(245,158,11,.08);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:1.5s;}
+@keyframes orbF{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(20px,-20px) scale(1.06);}}
+.fcards{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.fcard{position:absolute;padding:10px 14px;border-radius:11px;background:rgba(255,255,255,.06);border:1px solid var(--b);backdrop-filter:blur(10px);font-size:11px;color:var(--t2);animation:flt 6s ease-in-out infinite;}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.fcard:nth-child(1){top:22%;left:4%;animation-delay:0s;}
+.fcard:nth-child(2){top:34%;right:3%;animation-delay:1.5s;}
+.fcard:nth-child(3){bottom:28%;left:3%;animation-delay:3s;}
+.fcard:nth-child(4){bottom:22%;right:4%;animation-delay:4.5s;}
+.fci{font-size:16px;margin-bottom:3px;}
+.hero-in{position:relative;z-index:3;max-width:920px;margin:0 auto;}
+.hbadge{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:100px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);font-size:13px;font-weight:600;color:var(--a2);margin-bottom:28px;animation:fadeUp .8s ease both;}
+.bdot{width:6px;height:6px;border-radius:50%;background:var(--a4);box-shadow:0 0 8px var(--a4);animation:blink2 1.5s ease-in-out infinite;}
+@keyframes blink2{0%,100%{opacity:1}50%{opacity:.2}}
+.htitle{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.6rem,7vw,6rem);line-height:1.04;margin-bottom:20px;animation:fadeUp .8s .1s ease both;}
+.htitle .l1{display:block;color:var(--t);}
+.htitle .l2{display:block;background:linear-gradient(135deg,var(--a),var(--a2),var(--a3),var(--a5));background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradS 4s linear infinite;}
+@keyframes gradS{0%{background-position:0%}100%{background-position:300%}}
+.hsub{font-size:clamp(.95rem,2.2vw,1.2rem);color:var(--t2);max-width:680px;margin:0 auto 36px;line-height:1.75;animation:fadeUp .8s .2s ease both;}
+.hcta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;animation:fadeUp .8s .3s ease both;}
+.bhero{padding:15px 34px;border-radius:14px;font-size:15px;font-weight:700;transition:all .3s;border:none;cursor:pointer;}
+.bh-p{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;box-shadow:0 8px 28px rgba(124,58,237,.4);}
+.bh-p:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(124,58,237,.6);}
+.bh-s{background:var(--g2);border:1px solid var(--b);color:var(--t);backdrop-filter:blur(10px);}
+.bh-s:hover{background:var(--g3);transform:translateY(-2px);}
+.bh-apk{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;box-shadow:0 8px 28px rgba(37,211,102,.3);}
+.bh-apk:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(37,211,102,.5);}
+.hstats{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;padding:26px 40px;border-radius:20px;background:var(--g);border:1px solid var(--b);backdrop-filter:blur(20px);animation:fadeUp .8s .4s ease both;}
+.hs .hn{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hs .hl{font-size:11px;color:var(--t3);margin-top:2px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* SECTIONS */
+section{position:relative;z-index:2;}
+.spad{padding:96px 32px;}
+.shd{text-align:center;margin-bottom:56px;}
+.stag{display:inline-block;padding:5px 16px;border-radius:100px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);font-size:11px;font-weight:700;color:var(--a2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
+.stitle{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,3rem);line-height:1.15;margin-bottom:14px;}
+.ssub{color:var(--t2);font-size:1rem;max-width:580px;margin:0 auto;line-height:1.7;}
+
+/* CLASSES */
+#classes{background:linear-gradient(180deg,var(--bg),var(--bg2));}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px;max-width:1100px;margin:0 auto;}
+.ccard{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:22px 14px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;text-decoration:none;color:var(--t);display:block;}
+.ccard::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--a),var(--a2));opacity:0;transition:opacity .3s;}
+.ccard:hover{transform:translateY(-6px);border-color:var(--a);box-shadow:0 12px 30px rgba(0,0,0,.4);}
+.ccard:hover::before{opacity:.07;}
+.ccard:hover .cico{transform:scale(1.2) rotate(-5deg);}
+.cico{font-size:2.2rem;margin-bottom:9px;transition:transform .3s;position:relative;}
+.cname{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;position:relative;}
+.csub{font-size:10px;color:var(--t3);margin-top:2px;position:relative;}
+.cbdg{position:absolute;top:9px;right:9px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:800;background:rgba(16,185,129,.15);color:var(--a4);border:1px solid rgba(16,185,129,.25);}
+
+/* SUBJECTS */
+#subjects{background:var(--bg2);}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:17px;max-width:1100px;margin:0 auto;}
+.sbcard{background:var(--g);border:1px solid var(--b);border-radius:22px;padding:26px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;text-decoration:none;color:var(--t);display:block;}
+.sbcard::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--sbg);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
+.sbcard:hover::after{transform:scaleX(1);}
+.sbcard:hover{transform:translateY(-7px);box-shadow:0 16px 40px rgba(0,0,0,.5);border-color:rgba(255,255,255,.14);}
+.sbico{width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:13px;background:var(--sbbg);border:1px solid var(--sbb);}
+.sbname{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:7px;}
+.sbdesc{font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:13px;}
+.sbfeats{display:flex;flex-wrap:wrap;gap:5px;}
+.sbfeat{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:var(--g2);color:var(--t2);border:1px solid var(--b);}
+.sbarr{position:absolute;top:26px;right:26px;width:30px;height:30px;border-radius:8px;background:var(--g2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .3s;}
+.sbcard:hover .sbarr{background:var(--a);border-color:var(--a);transform:translate(3px,-3px);}
+
+/* AI FEATURES */
+#aif{background:var(--bg);}
+.aifgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;max-width:1100px;margin:0 auto;}
+.aifc{background:var(--g);border:1px solid var(--b);border-radius:20px;padding:24px;transition:all .3s;position:relative;overflow:hidden;}
+.aifc:hover{border-color:var(--b2);box-shadow:0 0 40px rgba(124,58,237,.3);}
+.aifc.ft{grid-column:span 2;background:linear-gradient(135deg,rgba(124,58,237,.07),rgba(6,182,212,.04));border-color:rgba(124,58,237,.2);}
+.aifc-h{display:flex;align-items:flex-start;gap:13px;margin-bottom:13px;}
+.aifc-i{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;background:var(--g2);border:1px solid var(--b);flex-shrink:0;}
+.aifc-t{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:4px;}
+.aifc-d{font-size:13px;color:var(--t2);line-height:1.55;}
+.nbdg{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:800;background:rgba(245,158,11,.15);color:var(--a3);border:1px solid rgba(245,158,11,.25);letter-spacing:.05em;text-transform:uppercase;margin-left:6px;}
+.aifc-list{list-style:none;margin-top:10px;}
+.aifc-list li{font-size:12px;color:var(--t2);padding:5px 0;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:6px;}
+.aifc-list li::before{content:'→';color:var(--a2);font-size:11px;}
+
+/* GAMIFICATION */
+#gamif{background:var(--bg2);}
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1100px;margin:0 auto;}
+.gcard{background:var(--g);border:1px solid var(--b);border-radius:20px;padding:28px;text-align:center;position:relative;overflow:hidden;transition:all .3s;}
+.gcard:hover{transform:translateY(-6px);box-shadow:0 0 40px rgba(124,58,237,.3);}
+.gcard::before{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent,rgba(124,58,237,.04),transparent 30%);animation:rotbg 8s linear infinite;}
+@keyframes rotbg{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.gcico{font-size:2.8rem;margin-bottom:12px;position:relative;}
+.gctitle{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:7px;position:relative;}
+.gcdesc{font-size:13px;color:var(--t2);line-height:1.6;position:relative;}
+.xpb{height:5px;border-radius:3px;background:rgba(255,255,255,.05);margin-top:13px;overflow:hidden;position:relative;}
+.xpf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--a),var(--a2));transition:width 1.5s ease;}
+
+/* ANALYTICS */
+#analy{background:var(--bg);}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;max-width:1100px;margin:0 auto;}
+.acard{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:22px;}
+.atitle{font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;}
+.aval{font-family:'Syne',sans-serif;font-weight:800;font-size:2.2rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ach{font-size:12px;color:var(--a4);margin-top:3px;}
+.mbars{display:flex;align-items:flex-end;gap:4px;height:36px;margin-top:13px;}
+.mbar{flex:1;border-radius:2px 2px 0 0;background:linear-gradient(0deg,var(--a),var(--a2));opacity:.65;transition:opacity .3s;}
+.mbar:hover{opacity:1;}
+.heatmap{margin-top:13px;display:flex;flex-direction:column;gap:4px;}
+.hmrow{display:flex;gap:3px;}
+.hmc{width:13px;height:13px;border-radius:2px;background:rgba(255,255,255,.04);}
+.hmc.l1{background:rgba(124,58,237,.2);}
+.hmc.l2{background:rgba(124,58,237,.45);}
+.hmc.l3{background:rgba(124,58,237,.7);}
+.hmc.l4{background:#7c3aed;}
+
+/* EXAMS */
+#exams{background:var(--bg2);}
+.examgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:13px;max-width:1100px;margin:0 auto;}
+.ecard{background:var(--g);border:1px solid var(--b);border-radius:15px;padding:20px;transition:all .3s;cursor:pointer;text-decoration:none;color:var(--t);display:block;}
+.ecard:hover{border-color:var(--a3);transform:translateY(-4px);box-shadow:0 8px 24px rgba(245,158,11,.15);}
+.eico{font-size:1.8rem;margin-bottom:9px;}
+.ename{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:4px;}
+.edesc{font-size:11px;color:var(--t3);}
+.etag{display:inline-block;margin-top:9px;padding:3px 7px;border-radius:4px;font-size:9px;font-weight:800;background:rgba(245,158,11,.12);color:var(--a3);text-transform:uppercase;}
+
+/* TOOLS */
+#tools{background:var(--bg);}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:15px;max-width:1100px;margin:0 auto;}
+.tcard{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:22px;transition:all .3s;text-decoration:none;color:var(--t);display:block;}
+.tcard:hover{border-color:rgba(255,255,255,.18);transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.4);}
+.tico{font-size:2.2rem;margin-bottom:11px;}
+.ttitle{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;margin-bottom:6px;}
+.tdesc{font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:11px;}
+.ttag{display:inline-block;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;background:rgba(124,58,237,.12);color:var(--a);}
+
+/* BATCHES */
+#batches{background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(6,182,212,.04));border-top:1px solid var(--b);border-bottom:1px solid var(--b);}
+.batgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:900px;margin:0 auto;}
+.batcard{background:var(--g);border:1px solid var(--b);border-radius:20px;padding:28px;text-align:center;transition:all .3s;}
+.batcard:hover{border-color:var(--b2);transform:translateY(-4px);}
+.batlogo{font-size:2.6rem;margin-bottom:13px;}
+.batname{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:7px;}
+.batdesc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px;}
+.batlinks{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.bl{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;}
+.bl-p{background:rgba(124,58,237,.15);color:var(--a);border:1px solid rgba(124,58,237,.3);}
+.bl-y{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);}
+.bl-t{background:rgba(6,182,212,.12);color:var(--a2);border:1px solid rgba(6,182,212,.25);}
+.bl-p:hover{background:rgba(124,58,237,.25);}
+.bl-y:hover{background:rgba(239,68,68,.22);}
+.bl-t:hover{background:rgba(6,182,212,.22);}
+
+/* ══════════════════════════════════
+   CREATOR SECTION — Full Animation
+══════════════════════════════════ */
+#creator{
+  background:var(--bg3);
+  overflow:hidden;
+  position:relative;
+}
+/* animated bg mesh */
+.cr-mesh{position:absolute;inset:0;pointer-events:none;}
+.cr-mesh svg{width:100%;height:100%;opacity:.08;}
+/* big glow behind photo */
+.cr-photoglow{
+  position:absolute;left:8%;top:50%;transform:translateY(-50%);
+  width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.5) 0%,rgba(6,182,212,.2) 50%,transparent 70%);
+  filter:blur(60px);animation:crGlow 4s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes crGlow{0%{opacity:.6;transform:translateY(-50%) scale(1);}100%{opacity:1;transform:translateY(-50%) scale(1.1);}}
+.cr-inner{max-width:1100px;margin:0 auto;padding:96px 32px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:2;}
+/* Photo side */
+.cr-photowrap{display:flex;justify-content:center;align-items:center;position:relative;}
+.cr-rings{position:absolute;inset:-40px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.cr-ring{position:absolute;border-radius:50%;border:1px solid;}
+.cr-ring:nth-child(1){width:340px;height:340px;border-color:rgba(124,58,237,.25);animation:crRing 6s linear infinite;}
+.cr-ring:nth-child(2){width:420px;height:420px;border-color:rgba(6,182,212,.18);animation:crRing 9s linear infinite reverse;}
+.cr-ring:nth-child(3){width:500px;height:500px;border-color:rgba(245,158,11,.12);animation:crRing 14s linear infinite;}
+@keyframes crRing{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+/* Orbiting dots */
+.cr-orb{position:absolute;width:10px;height:10px;border-radius:50%;}
+.cr-orb:nth-child(4){background:var(--a);box-shadow:0 0 12px var(--a);animation:crOrb1 6s linear infinite;}
+.cr-orb:nth-child(5){background:var(--a2);box-shadow:0 0 12px var(--a2);animation:crOrb2 9s linear infinite;}
+.cr-orb:nth-child(6){background:var(--a3);box-shadow:0 0 12px var(--a3);animation:crOrb3 14s linear infinite;}
+@keyframes crOrb1{0%{transform:rotate(0deg) translateX(170px) rotate(0deg);}100%{transform:rotate(360deg) translateX(170px) rotate(-360deg);}}
+@keyframes crOrb2{0%{transform:rotate(45deg) translateX(210px) rotate(-45deg);}100%{transform:rotate(405deg) translateX(210px) rotate(-405deg);}}
+@keyframes crOrb3{0%{transform:rotate(90deg) translateX(250px) rotate(-90deg);}100%{transform:rotate(450deg) translateX(250px) rotate(-450deg);}}
+/* Photo frame */
+.cr-frame{position:relative;width:280px;height:330px;}
+.cr-border-anim{position:absolute;inset:-4px;border-radius:26px;background:linear-gradient(135deg,var(--a),var(--a2),var(--a3),var(--a5));background-size:300% 300%;animation:crBorder 4s linear infinite;z-index:0;}
+@keyframes crBorder{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cr-photo{width:100%;height:100%;border-radius:24px;object-fit:cover;position:relative;z-index:1;display:block;}
+.cr-badge{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--a),var(--a2));
+  color:#fff;padding:8px 22px;border-radius:100px;
+  font-size:12px;font-weight:800;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(124,58,237,.5);z-index:2;
+  animation:crBadge 2s ease-in-out infinite alternate;
+}
+@keyframes crBadge{0%{box-shadow:0 8px 24px rgba(124,58,237,.5);}100%{box-shadow:0 8px 40px rgba(124,58,237,.9);}}
+/* floating mini-cards around photo */
+.cr-mini{
+  position:absolute;padding:8px 12px;border-radius:10px;
+  background:rgba(13,13,32,.9);border:1px solid var(--b2);
+  backdrop-filter:blur(10px);font-size:11px;font-weight:600;color:var(--t);
+  white-space:nowrap;z-index:3;
+}
+.cr-mini:nth-child(1){top:10%;right:-30px;animation:flt 5s ease-in-out infinite;}
+.cr-mini:nth-child(2){bottom:15%;left:-35px;animation:flt 6s ease-in-out infinite 1s;}
+.cr-mini:nth-child(3){top:50%;right:-40px;animation:flt 7s ease-in-out infinite 2s;}
+/* Text side */
+.cr-content{}
+.cr-eyebrow{font-family:'Space Mono',monospace;font-size:11px;color:var(--a2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.cr-eyebrow::before{content:'';width:32px;height:1px;background:var(--a2);}
+.cr-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;margin-bottom:6px;}
+.cr-name span{background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.cr-role{font-size:15px;color:var(--a2);font-weight:600;margin-bottom:18px;}
+.cr-bio{font-size:14px;color:var(--t2);line-height:1.85;margin-bottom:24px;}
+.cr-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+.ctag{padding:5px 13px;border-radius:8px;font-size:12px;font-weight:600;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.ctag:hover{background:rgba(124,58,237,.15);border-color:var(--b2);color:var(--a);}
+/* stat chips */
+.cr-stats{display:flex;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+.crstat{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:14px 20px;text-align:center;transition:all .3s;}
+.crstat:hover{border-color:var(--b2);}
+.crstat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.crstat-l{font-size:11px;color:var(--t3);margin-top:2px;}
+.cr-socials{display:flex;gap:10px;flex-wrap:wrap;}
+.csoc{
+  padding:10px 20px;border-radius:11px;font-size:13px;font-weight:700;
+  text-decoration:none;transition:all .25s;display:flex;align-items:center;gap:7px;
+}
+.cs1{background:rgba(6,182,212,.12);color:var(--a2);border:1px solid rgba(6,182,212,.25);}
+.cs1:hover{background:rgba(6,182,212,.22);transform:translateY(-2px);}
+.cs2{background:rgba(124,58,237,.12);color:var(--a);border:1px solid rgba(124,58,237,.25);}
+.cs2:hover{background:rgba(124,58,237,.22);transform:translateY(-2px);}
+.cs3{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25);}
+.cs3:hover{background:rgba(239,68,68,.22);transform:translateY(-2px);}
+.cs4{background:rgba(37,211,102,.12);color:#25d366;border:1px solid rgba(37,211,102,.25);}
+.cs4:hover{background:rgba(37,211,102,.22);transform:translateY(-2px);}
+/* typing animation for role */
+.cr-role-wrap{display:flex;align-items:center;gap:4px;margin-bottom:18px;}
+.typed-text{font-size:15px;color:var(--a2);font-weight:600;}
+.cursor-blink{display:inline-block;width:2px;height:18px;background:var(--a2);animation:curBlink .7s ease-in-out infinite;}
+@keyframes curBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* FOOTER */
+footer{background:var(--bg3);border-top:1px solid var(--b);padding:52px 32px 32px;position:relative;z-index:2;}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1100px;margin:0 auto 40px;}
+.fbl{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
+.fbl img{width:30px;height:30px;border-radius:8px;}
+.fbn{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--t),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.fdesc{font-size:13px;color:var(--t3);line-height:1.7;max-width:230px;margin-bottom:16px;}
+.fscl{display:flex;gap:7px;flex-wrap:wrap;}
+.fs{padding:6px 12px;border-radius:7px;background:var(--g);border:1px solid var(--b);font-size:12px;color:var(--t3);text-decoration:none;transition:all .2s;}
+.fs:hover{background:var(--g2);color:var(--t);}
+.fct{font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;color:var(--t);margin-bottom:13px;}
+.flinks{display:flex;flex-direction:column;gap:8px;}
+.flinks a{font-size:13px;color:var(--t3);text-decoration:none;transition:color .2s;}
+.flinks a:hover{color:var(--a2);}
+.fbot{max-width:1100px;margin:0 auto;padding-top:20px;border-top:1px solid var(--b);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--t3);}
+
+/* AUTH MODAL */
+.mbg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:all .3s;}
+.mbg.open{opacity:1;pointer-events:all;}
+.amod{width:90%;max-width:900px;border-radius:28px;background:var(--bg2);border:1px solid var(--b);overflow:hidden;display:grid;grid-template-columns:1fr 1fr;transform:scale(.93) translateY(22px);transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;}
+.mbg.open .amod{transform:scale(1) translateY(0);}
+/* Left: animated panel */
+.aleft{position:relative;overflow:hidden;min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px;text-align:center;}
+.al-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a0040,#00204a,#001a30);}
+.al-parts{position:absolute;inset:0;overflow:hidden;}
+.al-rings{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.alr{position:absolute;border-radius:50%;border:1px solid;animation:alRing 4s ease-in-out infinite;}
+@keyframes alRing{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.08);opacity:.7}}
+.al-logo{position:relative;z-index:2;margin-bottom:18px;}
+.al-logo img{width:76px;height:76px;border-radius:18px;animation:alLogo 3s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(124,58,237,.8));}
+@keyframes alLogo{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-10px) rotate(2deg);}}
+.al-tag{position:relative;z-index:2;font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:#fff;margin-bottom:8px;}
+.al-sub{position:relative;z-index:2;font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;margin-bottom:20px;}
+.al-stats{position:relative;z-index:2;display:flex;gap:18px;}
+.als{text-align:center;}
+.als-n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;color:#fff;}
+.als-l{font-size:10px;color:rgba(255,255,255,.45);}
+.al-wave{position:absolute;bottom:0;left:0;right:0;height:60px;overflow:hidden;}
+.al-wave svg{width:100%;height:100%;}
+/* Right: form */
+.aright{padding:36px 34px;}
+.aclose{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:7px;background:var(--g2);border:1px solid var(--b);color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;}
+.atabs{display:flex;gap:0;margin-bottom:22px;border-radius:10px;overflow:hidden;border:1px solid var(--b);}
+.atab{flex:1;padding:11px;text-align:center;cursor:pointer;font-weight:600;font-size:14px;color:var(--t2);background:transparent;border:none;transition:all .2s;}
+.atab.active{background:var(--a);color:#fff;}
+.fg{margin-bottom:14px;}
+.fl{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;display:block;}
+.fi{width:100%;padding:12px 14px;border-radius:10px;background:var(--g);border:1px solid var(--b);color:var(--t);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;}
+.fi:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(124,58,237,.1);}
+.fi::placeholder{color:var(--t3);}
+.fi option{background:var(--bg2);}
+.asub{width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:800;font-size:15px;border:none;cursor:pointer;transition:all .3s;margin-top:5px;}
+.asub:hover{box-shadow:0 8px 24px rgba(124,58,237,.4);transform:translateY(-1px);}
+.amsg{margin-top:12px;padding:10px;border-radius:9px;font-size:13px;text-align:center;}
+.amsg.s{background:rgba(16,185,129,.1);color:var(--a4);border:1px solid rgba(16,185,129,.2);}
+.amsg.e{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);}
+
+/* PWA/APK POPUP */
+#instpop{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);width:92%;max-width:440px;z-index:8000;background:var(--bg2);border:1px solid var(--b2);border-radius:22px;padding:20px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 16px 60px rgba(0,0,0,.6);transition:all .4s cubic-bezier(.4,0,.2,1);opacity:0;}
+#instpop.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.ipp-ico{font-size:2.2rem;flex-shrink:0;}
+.ipp-txt{flex:1;}
+.ipp-title{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;margin-bottom:3px;}
+.ipp-sub{font-size:11px;color:var(--t2);}
+.ipp-btns{display:flex;flex-direction:column;gap:6px;}
+.ipp-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;text-align:center;text-decoration:none;display:block;transition:all .2s;}
+.ipp-pwa{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;}
+.ipp-apk{background:rgba(37,211,102,.15);color:#25d366;border:1px solid rgba(37,211,102,.3);}
+.ipp-dis{background:var(--g);color:var(--t3);border:1px solid var(--b);padding:5px 9px;border-radius:6px;font-size:11px;cursor:pointer;align-self:flex-start;margin-top:2px;}
+
+/* SUPERZ AI BOT */
+#szbttn{position:fixed;bottom:24px;left:24px;z-index:5000;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--a),var(--a2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 6px 28px rgba(124,58,237,.55);transition:all .3s;animation:szPulse 3s ease-in-out infinite;}
+@keyframes szPulse{0%,100%{box-shadow:0 6px 28px rgba(124,58,237,.55)}50%{box-shadow:0 6px 48px rgba(124,58,237,.85)}}
+#szbttn:hover{transform:scale(1.1) rotate(-5deg);}
+.szbdg{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--a3);border:2px solid var(--bg);font-size:9px;color:#111;display:flex;align-items:center;justify-content:center;font-weight:800;}
+#szwin{position:fixed;bottom:92px;left:24px;z-index:5000;width:365px;max-height:540px;background:var(--bg2);border:1px solid var(--b);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 70px rgba(0,0,0,.65);transform:scale(.88) translateY(20px);opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.4,0,.2,1);}
+#szwin.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
+.szh{padding:13px 16px;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;gap:10px;}
+.szav{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.szname{font-weight:800;font-size:.88rem;color:#fff;}
+.szstat{font-size:10px;color:rgba(255,255,255,.65);}
+.szabdgs{margin-left:auto;display:flex;gap:4px;}
+.szabdg{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(255,255,255,.2);color:#fff;}
+.szclose{margin-left:4px;background:transparent;border:none;color:rgba(255,255,255,.75);cursor:pointer;font-size:16px;}
+.szmsgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px;scrollbar-width:thin;scrollbar-color:var(--b) transparent;}
+.szmsg{max-width:88%;padding:9px 12px;border-radius:13px;font-size:13px;line-height:1.55;}
+.szmsg.bot{background:var(--g2);border:1px solid var(--b);border-radius:4px 13px 13px 13px;color:var(--t);align-self:flex-start;}
+.szmsg.user{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;border-radius:13px 4px 13px 13px;align-self:flex-end;}
+.sztyp{display:flex;gap:4px;padding:9px 12px;background:var(--g2);border:1px solid var(--b);border-radius:4px 13px 13px 13px;width:fit-content;}
+.std{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:typing .9s infinite;}
+.std:nth-child(2){animation-delay:.2s;}.std:nth-child(3){animation-delay:.4s;}
+@keyframes typing{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.szmodels{padding:6px 12px;display:flex;gap:5px;border-top:1px solid var(--b);}
+.szmod{padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--b);background:var(--g);color:var(--t3);transition:all .2s;}
+.szmod.active{background:rgba(124,58,237,.15);border-color:var(--b2);color:var(--a);}
+.szquick{padding:7px 12px;display:flex;gap:6px;overflow-x:auto;border-top:1px solid var(--b);scrollbar-width:none;}
+.szquick::-webkit-scrollbar{display:none;}
+.szqb{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;background:var(--g);border:1px solid var(--b);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.szqb:hover{background:var(--g2);color:var(--t);}
+.szinp-area{padding:9px 11px;border-top:1px solid var(--b);display:flex;gap:7px;align-items:flex-end;}
+.szinp{flex:1;padding:9px 12px;border-radius:10px;background:var(--g);border:1px solid var(--b);color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:none;max-height:80px;}
+.szinp:focus{border-color:var(--b2);}
+.szsend{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--a2));border:none;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.szsend:hover{transform:scale(1.1);}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .aifgrid{grid-template-columns:1fr 1fr;}.aifc.ft{grid-column:span 1;}
+  .agrid{grid-template-columns:1fr 1fr;}
+  .ggrid{grid-template-columns:1fr 1fr;}
+  .cr-inner{grid-template-columns:1fr;}
+  .cr-photowrap{margin-bottom:48px;}
+  .fgrid{grid-template-columns:1fr 1fr;}
+  .amod{grid-template-columns:1fr;}.aleft{display:none;}
+}
+@media(max-width:600px){
+  nav{padding:10px 16px;}.nlinks{display:none;}.burg{display:flex;}
+  .spad{padding:60px 16px;}
+  .cgrid{grid-template-columns:repeat(3,1fr);}
+  .aifgrid{grid-template-columns:1fr;}
+  .agrid{grid-template-columns:1fr;}
+  .ggrid{grid-template-columns:1fr;}
+  .batgrid{grid-template-columns:1fr;}
+  .fgrid{grid-template-columns:1fr;}
+  .cr-inner{padding:60px 16px;}
+  .cr-name{font-size:2rem;}
+  .cr-frame{width:230px;height:270px;}
+  .cr-ring:nth-child(1){width:280px;height:280px;}
+  .cr-ring:nth-child(2){width:340px;height:340px;}
+  .cr-ring:nth-child(3){width:400px;height:400px;}
+  #szwin{width:calc(100vw - 32px);}
+  .hstats{gap:18px;padding:18px;}
+  .hs .hn{font-size:1.5rem;}
+  .amod{width:95%;max-width:380px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <img src="assets/logo.png" class="ld-logo" alt="Study Superz"/>
+  <div class="ld-title">Study Superz</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-sub">Empower Your Learning ⚡</div>
+</div>
+
+<div id="pgbar"></div>
+<div id="cur"></div><div id="cur2"></div>
+<canvas id="bgc"></canvas>
+<div class="noise"></div>
+<div id="toast"></div>
+
+<!-- NOTIF BAR -->
+<div id="nbar">
+  <span>🔔</span>
+  <div class="nb-txt">Get CBSE/NCERT updates, upcoming exam alerts & daily study reminders!</div>
+  <button class="nb-yes" onclick="askNotif()">Allow</button>
+  <button class="nb-no" onclick="document.getElementById('nbar').classList.remove('show');localStorage.setItem('nb','1')">Later</button>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="nlogo">
+    <img src="assets/logo.png" alt="SS"/>
+    <span class="nbrand">Study Superz</span>
+  </a>
+  <div class="nlinks">
+    <a href="#classes" class="nl">Classes</a>
+    <a href="#subjects" class="nl">Subjects</a>
+    <a href="#aif" class="nl">AI Tools</a>
+    <a href="exams/index.html" class="nl">Exams</a>
+    <a href="tools/mock-test.html" class="nl">Mock Test</a>
+    <a href="notes/index.html" class="nl">Smart Notes</a>
+    <a href="live/index.html" class="nl">Live Classes</a>
+    <a href="dashboard/index.html" class="nl">Dashboard</a>
+  </div>
+  <div class="nact">
+    <button class="uava" id="uava"></button>
+    <button class="btn-g" id="lbtn" onclick="openAuth('login')">Login</button>
+    <button class="btn-p" id="sbtn" onclick="openAuth('signup')">Get Started Free</button>
+  </div>
+  <button class="burg" id="burg" onclick="document.getElementById('drawer').classList.toggle('open')">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- DRAWER -->
+<div id="drawer">
+  <a href="#classes" class="dlnk" onclick="document.getElementById('drawer').classList.remove('open')">📚 Classes</a>
+  <a href="#subjects" class="dlnk" onclick="document.getElementById('drawer').classList.remove('open')">📖 Subjects</a>
+  <a href="#aif" class="dlnk" onclick="document.getElementById('drawer').classList.remove('open')">🤖 AI Tools</a>
+  <a href="exams/index.html" class="dlnk">🏆 Exams</a>
+  <a href="tools/mock-test.html" class="dlnk">🎯 Mock Test</a>
+  <a href="notes/index.html" class="dlnk">📝 Smart Notes</a>
+  <a href="live/index.html" class="dlnk">🎥 Live Classes</a>
+  <a href="dashboard/index.html" class="dlnk">📊 Dashboard</a>
+  <a href="https://median.co/share/bneyddw#apk" target="_blank" class="dlnk">📱 Download APK</a>
+  <button class="btn-p" style="margin-top:20px;width:100%;padding:13px;" onclick="openAuth('signup');document.getElementById('drawer').classList.remove('open')">Get Started Free</button>
+</div>
+
+<!-- THOUGHT STRIP -->
+<div class="thought" style="position:relative;z-index:2;margin-top:58px;">
+  <span class="th-lbl">💡 Thought of the Day</span>
+  <div style="overflow:hidden;flex:1;"><div class="th-txt" id="thtxt"></div></div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+  <div class="fcards">
+    <div class="fcard"><div class="fci">📐</div>Geometry 3D</div>
+    <div class="fcard"><div class="fci">🧬</div>Cell Division</div>
+    <div class="fcard"><div class="fci">⚡</div>Physics Sim</div>
+    <div class="fcard"><div class="fci">📊</div>AI Analytics</div>
+  </div>
+  <div class="hero-in">
+    <div class="hbadge"><span class="bdot"></span>India's #1 AI-Powered EdTech — Nursery to Class 12</div>
+    <h1 class="htitle"><span class="l1">Master Every Subject</span><span class="l2">With AI-Powered Learning</span></h1>
+    <p class="hsub">Animated lessons, 3D models, AI tutors, mock tests, live study rooms, spaced repetition, knowledge graphs — everything a student needs. 100% Free.</p>
+    <div class="hcta">
+      <button class="bhero bh-p" onclick="openAuth('signup')">🚀 Start Learning Free</button>
+      <button class="bhero bh-s" onclick="document.getElementById('classes').scrollIntoView({behavior:'smooth'})">📚 Explore Classes</button>
+      <a href="https://median.co/share/bneyddw#apk" target="_blank" class="bhero bh-apk">📱 Download APK</a>
+    </div>
+    <div class="hstats">
+      <div class="hs"><div class="hn" data-c="15">0</div><div class="hl">Classes</div></div>
+      <div class="hs"><div class="hn" data-c="50">0</div><div class="hl">Subjects</div></div>
+      <div class="hs"><div class="hn" data-c="1000">0</div><div class="hl">Lessons</div></div>
+      <div class="hs"><div class="hn" data-c="30">0</div><div class="hl">Exams</div></div>
+      <div class="hs"><div class="hn" data-c="5">0</div><div class="hl">AI Models</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CLASSES -->
+<section id="classes" class="spad"><div class="shd"><div class="stag">📚 Choose Your Class</div><h2 class="stitle">Nursery to Class 12th</h2><p class="ssub">Every class, every subject — fully animated curriculum from day one.</p></div><div class="cgrid" id="cgrid"></div></section>
+
+<!-- SUBJECTS -->
+<section id="subjects" class="spad" style="background:var(--bg2);"><div class="shd"><div class="stag">📖 Subjects</div><h2 class="stitle">Every Subject, Deeply Covered</h2><p class="ssub">Dedicated AI-powered portals with 3D models, simulations, and live doubt solving.</p></div><div class="sgrid" id="sgrid"></div></section>
+
+<!-- AI FEATURES -->
+<section id="aif" class="spad"><div class="shd"><div class="stag">🤖 AI-Native 2026</div><h2 class="stitle">The Most Advanced AI Learning Stack</h2><p class="ssub">Powered by Claude, Gemini, Grok & DeepSeek — working together for the best answers.</p></div><div class="aifgrid" id="aifgrid"></div></section>
+
+<!-- GAMIFICATION -->
+<section id="gamif" class="spad"><div class="shd"><div class="stag">🎮 Gamification</div><h2 class="stitle">Learning Meets Gaming</h2><p class="ssub">XP, streaks, leaderboards, badges, study RPG — motivation science at work.</p></div><div class="ggrid" id="ggrid"></div></section>
+
+<!-- ANALYTICS -->
+<section id="analy" class="spad" style="background:var(--bg2);"><div class="shd"><div class="stag">📊 Analytics</div><h2 class="stitle">Weakness Heatmap & Deep Analytics</h2><p class="ssub">See exactly which sub-topics need attention before your real exam.</p></div><div class="agrid" id="agrid"></div></section>
+
+<!-- EXAMS -->
+<section id="exams" class="spad"><div class="shd"><div class="stag">🏆 Competitive Exams</div><h2 class="stitle">Prep for Every Major Exam</h2><p class="ssub">Complete syllabus, previous papers, AI study guides and mock tests for 12+ exams.</p></div><div class="examgrid" id="examgrid"></div></section>
+
+<!-- TOOLS -->
+<section id="tools" class="spad" style="background:var(--bg2);"><div class="shd"><div class="stag">🔧 Study Tools</div><h2 class="stitle">All-in-One Learning Toolkit</h2><p class="ssub">Powerful AI-driven tools to supercharge learning — free, instant, intelligent.</p></div><div class="tgrid" id="tgrid"></div></section>
+
+<!-- BATCHES -->
+<section id="batches" class="spad"><div class="shd"><div class="stag">🎥 Free Resources</div><h2 class="stitle">Top Free Study Resources</h2><p class="ssub">Curated links to the best free educational content across India.</p></div>
+<div class="batgrid">
+  <div class="batcard"><div class="batlogo">🔵</div><div class="batname">Physics Wallah Resources</div><div class="batdesc">Extensive free content — lectures, PDFs, notes for all subjects and competitive exams.</div><div class="batlinks"><a href="https://pwsphere.page.gd" target="_blank" class="bl bl-p">PWSphere</a><a href="https://t.me/PhysicsWallah" target="_blank" class="bl bl-t">📢 Telegram</a><a href="https://youtube.com/@PhysicsWallah" target="_blank" class="bl bl-y">▶ YouTube</a></div></div>
+  <div class="batcard"><div class="batlogo">🟢</div><div class="batname">Next Toppers Platform</div><div class="batdesc">Free live classes, study material, and doubt sessions from top educators for all aspirants.</div><div class="batlinks"><a href="https://nexttoppers.onrender.com" target="_blank" class="bl bl-p">NextToppers</a><a href="https://t.me/nexttoppers" target="_blank" class="bl bl-t">📢 Telegram</a><a href="#" class="bl bl-y">▶ YouTube</a></div></div>
+</div></section>
+
+<!-- ══════════════════════════════════
+     CREATOR SECTION — ANIMATED
+══════════════════════════════════ -->
+<section id="creator">
+  <!-- Animated mesh background -->
+  <div class="cr-mesh">
+    <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="rg1" cx="20%" cy="50%"><stop offset="0%" stop-color="#7c3aed" stop-opacity=".4"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/></radialGradient>
+        <radialGradient id="rg2" cx="80%" cy="50%"><stop offset="0%" stop-color="#06b6d4" stop-opacity=".3"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="1200" height="600" fill="url(#rg1)"/>
+      <rect width="1200" height="600" fill="url(#rg2)"/>
+      <g stroke="rgba(124,58,237,.15)" stroke-width=".5">
+        <line x1="0" y1="100" x2="1200" y2="100"/><line x1="0" y1="200" x2="1200" y2="200"/>
+        <line x1="0" y1="300" x2="1200" y2="300"/><line x1="0" y1="400" x2="1200" y2="400"/>
+        <line x1="0" y1="500" x2="1200" y2="500"/>
+        <line x1="200" y1="0" x2="200" y2="600"/><line x1="400" y1="0" x2="400" y2="600"/>
+        <line x1="600" y1="0" x2="600" y2="600"/><line x1="800" y1="0" x2="800" y2="600"/>
+        <line x1="1000" y1="0" x2="1000" y2="600"/>
+      </g>
+    </svg>
+  </div>
+  <!-- Big glow -->
+  <div class="cr-photoglow"></div>
+
+  <div class="cr-inner">
+    <!-- LEFT: Photo with animations -->
+    <div class="cr-photowrap">
+      <!-- Rotating rings + orbiting dots -->
+      <div class="cr-rings">
+        <div class="cr-ring"></div>
+        <div class="cr-ring"></div>
+        <div class="cr-ring"></div>
+        <div class="cr-orb"></div>
+        <div class="cr-orb"></div>
+        <div class="cr-orb"></div>
+      </div>
+      <!-- Photo frame -->
+      <div class="cr-frame">
+        <div class="cr-border-anim"></div>
+        <img src="assets/nitish.webp" alt="Nitish Yadav" class="cr-photo"/>
+        <div class="cr-badge">⚡ Founder & Lead Developer</div>
+      </div>
+      <!-- Floating mini cards -->
+      <div class="cr-mini">🚀 Built Study Superz</div>
+      <div class="cr-mini">💻 Full-Stack Dev</div>
+      <div class="cr-mini">🤖 AI Builder</div>
+    </div>
+
+    <!-- RIGHT: Info -->
+    <div class="cr-content">
+      <div class="cr-eyebrow">The Creator</div>
+      <div class="cr-name">Nitish <span>Yadav</span></div>
+      <div class="cr-role-wrap">
+        <span class="typed-text" id="typed-role"></span>
+        <span class="cursor-blink"></span>
+      </div>
+      <div class="cr-bio">
+        Passionate about making quality education accessible to every Indian student — from a small village to the largest cities. Nitish built Study Superz entirely solo, designing, coding, and scaling the platform end-to-end.<br/><br/>
+        From Nursery to Class 12, JEE to UPSC — the platform serves students across India with free, world-class AI-powered learning tools, 3D simulations, live rooms, and much more.
+      </div>
+      <div class="cr-stats">
+        <div class="crstat"><div class="crstat-n">15+</div><div class="crstat-l">Classes Built</div></div>
+        <div class="crstat"><div class="crstat-n">50+</div><div class="crstat-l">Subjects</div></div>
+        <div class="crstat"><div class="crstat-n">5</div><div class="crstat-l">AI Models</div></div>
+        <div class="crstat"><div class="crstat-n">100%</div><div class="crstat-l">Free</div></div>
+      </div>
+      <div class="cr-tags">
+        <span class="ctag">React / Next.js</span><span class="ctag">Supabase</span>
+        <span class="ctag">AI Integration</span><span class="ctag">PWA / Mobile</span>
+        <span class="ctag">WebGL / Three.js</span><span class="ctag">EdTech</span>
+      </div>
+      <div class="cr-socials">
+        <a href="https://t.me/nitishyadav" target="_blank" class="csoc cs1">📢 Telegram</a>
+        <a href="mailto:yadavnitish23709@gmail.com" class="csoc cs2">✉ Email</a>
+        <a href="#" target="_blank" class="csoc cs3">▶ YouTube</a>
+        <a href="https://median.co/share/bneyddw#apk" target="_blank" class="csoc cs4">📱 APK</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fgrid">
+    <div>
+      <div class="fbl"><img src="assets/logo.png" alt="SS"/><span class="fbn">Study Superz</span></div>
+      <div class="fdesc">India's most advanced AI-powered learning platform. From Nursery to Class 12 — free, accessible, and world-class. Built by Nitish Yadav.</div>
+      <div class="fscl">
+        <a href="https://t.me/studysuperz" target="_blank" class="fs">Telegram</a>
+        <a href="#" class="fs">YouTube</a>
+        <a href="mailto:yadavnitish23709@gmail.com" class="fs">Email</a>
+        <a href="https://median.co/share/bneyddw#apk" target="_blank" class="fs">APK</a>
+      </div>
+    </div>
+    <div>
+      <div class="fct">Quick Links</div>
+      <div class="flinks">
+        <a href="#classes">All Classes</a><a href="#subjects">All Subjects</a>
+        <a href="exams/index.html">Exam Hub</a><a href="tools/mock-test.html">Mock Tests</a>
+        <a href="notes/index.html">Smart Notes</a>
+      </div>
+    </div>
+    <div>
+      <div class="fct">Subjects</div>
+      <div class="flinks">
+        <a href="subjects/maths.html">Mathematics</a><a href="subjects/physics.html">Physics</a>
+        <a href="subjects/chemistry.html">Chemistry</a><a href="subjects/biology.html">Biology</a>
+        <a href="subjects/english.html">English</a><a href="subjects/hindi.html">Hindi</a>
+      </div>
+    </div>
+    <div>
+      <div class="fct">Platform</div>
+      <div class="flinks">
+        <a href="dashboard/index.html">Dashboard</a><a href="live/index.html">Live Classes</a>
+        <a href="tools/index.html">Tools Hub</a><a href="admin/panel.html">Admin Panel</a>
+        <a href="https://median.co/share/bneyddw#apk" target="_blank">Download APK</a>
+      </div>
+    </div>
+  </div>
+  <div class="fbot">
+    <span>© 2026 Study Superz by <strong>Nitish Yadav</strong>. All rights reserved.</span>
+    <span style="font-family:'Space Mono',monospace;font-size:11px;">⚡ Empower Your Learning</span>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="mbg" id="amodal">
+  <div class="amod" style="position:relative;">
+    <button class="aclose" onclick="closeAuth()">✕</button>
+    <div class="aleft">
+      <div class="al-bg"></div>
+      <div class="al-parts" id="alparts"></div>
+      <div class="al-rings">
+        <div class="alr" style="width:180px;height:180px;border-color:rgba(124,58,237,.3);animation-duration:4s;"></div>
+        <div class="alr" style="width:260px;height:260px;border-color:rgba(6,182,212,.2);animation-duration:7s;animation-delay:1s;"></div>
+        <div class="alr" style="width:340px;height:340px;border-color:rgba(245,158,11,.15);animation-duration:10s;animation-delay:2s;"></div>
+      </div>
+      <div class="al-logo"><img src="assets/logo.png" alt="Study Superz"/></div>
+      <div class="al-tag">Study Superz</div>
+      <div class="al-sub">India's Most Advanced<br/>AI Learning Platform</div>
+      <div class="al-stats">
+        <div class="als"><div class="als-n">15+</div><div class="als-l">Classes</div></div>
+        <div class="als"><div class="als-n">50+</div><div class="als-l">Subjects</div></div>
+        <div class="als"><div class="als-n">Free</div><div class="als-l">Forever</div></div>
+      </div>
+      <div class="al-wave"><svg viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0,30 C100,60 300,0 400,30 L400,60 L0,60Z" fill="rgba(13,13,32,.8)"/></svg></div>
+    </div>
+    <div class="aright">
+      <div class="atabs">
+        <button class="atab active" id="tl" onclick="switchTab('login')">Sign In</button>
+        <button class="atab" id="ts" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      <div id="fl">
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="le" placeholder="you@example.com"/></div>
+        <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="lp" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <button class="asub" onclick="doLogin()">Sign In to Study Superz ⚡</button>
+      </div>
+      <div id="fs2" style="display:none;">
+        <div class="fg"><label class="fl">Full Name</label><input type="text" class="fi" id="sn" placeholder="Your full name"/></div>
+        <div class="fg"><label class="fl">Email</label><input type="email" class="fi" id="se" placeholder="you@example.com"/></div>
+        <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="sp" placeholder="Min 8 characters"/></div>
+        <div class="fg"><label class="fl">Your Class</label>
+          <select class="fi" id="sc">
+            <option value="">Select...</option>
+            <option>Nursery</option><option>KG</option>
+            <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+            <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+            <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+            <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+          </select>
+        </div>
+        <button class="asub" onclick="doSignup()">Create Free Account 🚀</button>
+      </div>
+      <div id="amsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PWA/APK POPUP -->
+<div id="instpop">
+  <div class="ipp-ico">📱</div>
+  <div class="ipp-txt">
+    <div class="ipp-title">Install Study Superz</div>
+    <div class="ipp-sub">Add to home screen or download Android APK</div>
+  </div>
+  <div class="ipp-btns">
+    <button class="ipp-btn ipp-pwa" id="pwabtn">📲 Install PWA</button>
+    <a href="https://median.co/share/bneyddw#apk" target="_blank" class="ipp-btn ipp-apk">📥 Download APK</a>
+  </div>
+  <button class="ipp-dis" onclick="document.getElementById('instpop').classList.remove('show');localStorage.setItem('idis','1')">✕</button>
+</div>
+
+<!-- SUPERZ AI -->
+<button id="szbttn" onclick="toggleSZ()">🤖<div class="szbdg">AI</div></button>
+<div id="szwin">
+  <div class="szh">
+    <div class="szav">⚡</div>
+    <div><div class="szname">Superz AI</div><div class="szstat">● Online · Multi-AI Powered</div></div>
+    <div class="szabdgs"><span class="szabdg">Gemini</span><span class="szabdg">Grok</span></div>
+    <button class="szclose" onclick="toggleSZ()">✕</button>
+  </div>
+  <div class="szmsgs" id="szmsgs">
+    <div class="szmsg bot">👋 Hi! I'm <strong>Superz</strong> — your AI study companion built by <strong>Nitish Yadav</strong>! I know everything about Study Superz — all 15 classes, 50+ subjects, AI tools, exams, and more.<br/><br/>Powered by Gemini, Grok, Claude & DeepSeek. Ask me anything! 🚀</div>
+  </div>
+  <div class="szmodels">
+    <button class="szmod active" onclick="setMod('gemini',this)">Gemini</button>
+    <button class="szmod" onclick="setMod('grok',this)">Grok</button>
+    <button class="szmod" onclick="setMod('claude',this)">Claude</button>
+    <button class="szmod" onclick="setMod('deepseek',this)">DeepSeek</button>
+  </div>
+  <div class="szquick">
+    <button class="szqb" onclick="szQ('What subjects are available?')">📚 Subjects</button>
+    <button class="szqb" onclick="szQ('Who built Study Superz?')">👨‍💻 Creator</button>
+    <button class="szqb" onclick="szQ('How do I prepare for JEE?')">🏆 JEE</button>
+    <button class="szqb" onclick="szQ('What AI features does Study Superz have?')">🤖 AI Tools</button>
+    <button class="szqb" onclick="szQ('How to download the APK?')">📱 APK</button>
+  </div>
+  <div class="szinp-area">
+    <textarea class="szinp" id="szinp" placeholder="Ask anything..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();szSend();}"></textarea>
+    <button class="szsend" onclick="szSend()">➤</button>
+  </div>
+</div>
+
+<script>
+/* ──────────────── SUPABASE ──────────────── */
+const{createClient}=supabase;
+const SB=createClient('https://mlpsqojltzkrsykhcico.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1scHNxb2psdHprcnN5a2hjaWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzU5MTUsImV4cCI6MjA5NjMxMTkxNX0.w2Xfo_x7MpFhhIIzW2uh0o-XdZkZNIJvSEEWEzD7cJ0');
+const GEM='AIzaSyB8RN6LwTx9Y0X9_Ahi3bNriHtguJVAi1CCrRu21wxoEUyagyg';
+const GROK='xai-L0p9EXGN3V8o4VKzJaMeQFnfZ6P9J4CQQQOytTTDseymZ0ldguU8yUZGhxdQDvdrSX3pxrBiD2apn2Cw';
+const DS='sk-ec0b37d57a5341f3b01cd2c723237449';
+
+/* ──────────────── LOADER ──────────────── */
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').classList.add('out');initApp();},2400);});
+
+function initApp(){
+  initCursor();initBG();initCounters();initAuthParts();
+  buildClasses();buildSubjects();buildAI();buildGame();buildAnalytics();buildExams();buildTools();
+  scrollAnims();initThought();initTyped();
+  setTimeout(()=>{if(!localStorage.getItem('nb'))document.getElementById('nbar').classList.add('show');},4000);
+  setTimeout(()=>{if(!localStorage.getItem('idis'))document.getElementById('instpop').classList.add('show');},8000);
+}
+
+/* ──────────────── AUTH STATE ──────────────── */
+SB.auth.onAuthStateChange((ev,session)=>{
+  const lb=document.getElementById('lbtn'),sb=document.getElementById('sbtn'),av=document.getElementById('uava');
+  if(session){lb.style.display='none';sb.style.display='none';av.style.display='flex';const n=session.user.user_metadata?.full_name||session.user.email;av.textContent=n[0].toUpperCase();av.onclick=()=>{SB.auth.signOut();showToast('Signed out 👋');location.reload();};}
+  else{lb.style.display='block';sb.style.display='block';av.style.display='none';}
+});
+function openAuth(t='login'){document.getElementById('amodal').classList.add('open');switchTab(t);}
+function closeAuth(){document.getElementById('amodal').classList.remove('open');}
+document.getElementById('amodal').onclick=e=>{if(e.target===document.getElementById('amodal'))closeAuth();};
+function switchTab(t){
+  document.getElementById('tl').classList.toggle('active',t==='login');
+  document.getElementById('ts').classList.toggle('active',t==='signup');
+  document.getElementById('fl').style.display=t==='login'?'block':'none';
+  document.getElementById('fs2').style.display=t==='signup'?'block':'none';
+  document.getElementById('amsg').innerHTML='';
+}
+async function doLogin(){
+  const e=document.getElementById('le').value,p=document.getElementById('lp').value;
+  if(!e||!p){showMsg('Fill all fields.','e');return;}
+  const{error}=await SB.auth.signInWithPassword({email:e,password:p});
+  if(error)showMsg('❌ '+error.message,'e');
+  else{showMsg('✅ Welcome back!','s');setTimeout(closeAuth,900);showToast('Welcome back! 🎉','s');}
+}
+async function doSignup(){
+  const n=document.getElementById('sn').value,e=document.getElementById('se').value,p=document.getElementById('sp').value,c=document.getElementById('sc').value;
+  if(!n||!e||!p){showMsg('Fill all fields.','e');return;}
+  if(p.length<8){showMsg('Password needs 8+ characters.','e');return;}
+  const{data,error}=await SB.auth.signUp({email:e,password:p,options:{data:{full_name:n,class:c}}});
+  if(error)showMsg('❌ '+error.message,'e');
+  else{
+    if(data.user)await SB.from('profiles').upsert({id:data.user.id,full_name:n,email:e,class:c,created_at:new Date().toISOString()});
+    showMsg('🎉 Account created! Check your email.','s');setTimeout(closeAuth,1800);showToast('Welcome to Study Superz! 🚀','s');
+  }
+}
+function showMsg(m,t){document.getElementById('amsg').innerHTML=`<div class="amsg ${t}">${m}</div>`;}
+function showToast(m,t='s'){const el=document.getElementById('toast');el.textContent=m;el.className=`show ${t}`;setTimeout(()=>el.className='',3200);}
+
+/* ──────────────── CURSOR ──────────────── */
+function initCursor(){
+  const c=document.getElementById('cur'),c2=document.getElementById('cur2');
+  let mx=0,my=0,tx=0,ty=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;c.style.left=mx+'px';c.style.top=my+'px';});
+  setInterval(()=>{tx+=(mx-tx)*.12;ty+=(my-ty)*.12;c2.style.left=tx+'px';c2.style.top=ty+'px';},14);
+  document.querySelectorAll('a,button,.ccard,.sbcard,.ecard,.tcard,.crstat').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{c.style.transform='translate(-50%,-50%) scale(2.5)';c2.style.transform='translate(-50%,-50%) scale(1.5)';});
+    el.addEventListener('mouseleave',()=>{c.style.transform='translate(-50%,-50%) scale(1)';c2.style.transform='translate(-50%,-50%) scale(1)';});
+  });
+}
+
+/* ──────────────── BG CANVAS ──────────────── */
+function initBG(){
+  const cv=document.getElementById('bgc'),ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const pts=Array.from({length:70},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}));
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,Math.PI*2);ctx.fillStyle='rgba(124,58,237,.3)';ctx.fill();
+      pts.forEach(q=>{const d=Math.hypot(p.x-q.x,p.y-q.y);if(d<130){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(124,58,237,${.08*(1-d/130)})`;ctx.lineWidth=.5;ctx.stroke();}});
+    });
+    requestAnimationFrame(draw);
+  }draw();
+  window.addEventListener('resize',()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;});
+}
+
+/* ──────────────── COUNTERS ──────────────── */
+function initCounters(){document.querySelectorAll('[data-c]').forEach(el=>{const t=+el.dataset.c;let cur=0;const step=t/55;const ti=setInterval(()=>{cur=Math.min(cur+step,t);el.textContent=Math.floor(cur)+(t>=100?'+':'');if(cur>=t)clearInterval(ti);},28);});}
+
+/* ──────────────── AUTH PARTICLES ──────────────── */
+function initAuthParts(){
+  const c=document.getElementById('alparts');
+  for(let i=0;i<18;i++){const p=document.createElement('div');const sz=Math.random()*3+1;p.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:hsl(${220+Math.random()*80},70%,70%);left:${Math.random()*100}%;animation:authP ${Math.random()*6+4}s linear ${Math.random()*-8}s infinite;opacity:.4;`;c.appendChild(p);}
+  const s=document.createElement('style');s.textContent='@keyframes authP{0%{transform:translateY(100%);opacity:0}10%{opacity:.5}90%{opacity:.4}100%{transform:translateY(-100px);opacity:0}}';document.head.appendChild(s);
+}
+
+/* ──────────────── THOUGHT OF THE DAY ──────────────── */
+function initThought(){
+  const th=["\"The beautiful thing about learning is that no one can take it away from you.\" — B.B. King","\"Education is the most powerful weapon to change the world.\" — Nelson Mandela","\"An investment in knowledge pays the best interest.\" — Benjamin Franklin","\"Live as if you were to die tomorrow. Learn as if you were to live forever.\" — Mahatma Gandhi","\"Success is not final, failure is not fatal — the courage to continue is what counts.\" — Churchill","\"The expert in anything was once a beginner.\" — Helen Hayes","\"Intelligence plus character — that is the goal of true education.\" — MLK Jr.","\"The more you read, the more things you will know.\" — Dr. Seuss"];
+  document.getElementById('thtxt').textContent=th[new Date().getDay()%th.length];
+}
+
+/* ──────────────── TYPED ROLE ANIMATION ──────────────── */
+function initTyped(){
+  const roles=['Full-Stack Developer','EdTech Creator','AI Builder','Open Source Contributor','Student Advocate'];
+  let ri=0,ci=0,del=false;
+  const el=document.getElementById('typed-role');
+  function type(){
+    const r=roles[ri];
+    if(!del){
+      el.textContent=r.slice(0,++ci);
+      if(ci===r.length){del=true;setTimeout(type,2200);return;}
+    } else {
+      el.textContent=r.slice(0,--ci);
+      if(ci===0){del=false;ri=(ri+1)%roles.length;setTimeout(type,400);return;}
+    }
+    setTimeout(type,del?60:80);
+  }
+  setTimeout(type,1000);
+}
+
+/* ──────────────── SCROLL NAV ──────────────── */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;document.getElementById('pgbar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  document.getElementById('nav').classList.toggle('sc',window.scrollY>60);
+});
+
+/* ──────────────── SCROLL ANIMATIONS ──────────────── */
+function scrollAnims(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}},{threshold:.1}));
+  document.querySelectorAll('.ccard,.sbcard,.aifc,.gcard,.acard,.ecard,.tcard,.batcard,.crstat,.kg-feat').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(28px)';el.style.transition='opacity .6s ease,transform .6s ease';obs.observe(el);});
+}
+
+/* ──────────────── CLASSES ──────────────── */
+function buildClasses(){
+  const cl=[{n:'Nursery',i:'🌸',s:'Ages 3–4',b:'Pre-K'},{n:'KG',i:'⭐',s:'Ages 4–5',b:'Pre-K'},{n:'Class 1',i:'📗',s:'Age 6'},{n:'Class 2',i:'📘',s:'Age 7'},{n:'Class 3',i:'📙',s:'Age 8'},{n:'Class 4',i:'📕',s:'Age 9'},{n:'Class 5',i:'🔖',s:'Age 10'},{n:'Class 6',i:'🔬',s:'Age 11'},{n:'Class 7',i:'🧮',s:'Age 12'},{n:'Class 8',i:'⚗️',s:'Age 13'},{n:'Class 9',i:'📐',s:'Age 14'},{n:'Class 10',i:'🏆',s:'Board Exam',b:'Board'},{n:'Class 11',i:'🧬',s:'Sci/Commerce',b:'Senior'},{n:'Class 12',i:'🎓',s:'Final Year',b:'Board'}];
+  const g=document.getElementById('cgrid');
+  cl.forEach(c=>{const slug=c.n.toLowerCase().replace(/ /g,'-');g.innerHTML+=`<a href="class/${slug}.html" class="ccard">${c.b?`<div class="cbdg">${c.b}</div>`:''}<div class="cico">${c.i}</div><div class="cname">${c.n}</div><div class="csub">${c.s}</div></a>`;});
+}
+
+/* ──────────────── SUBJECTS ──────────────── */
+function buildSubjects(){
+  const subs=[{n:'Mathematics',i:'📐',d:'NCERT solutions, 3D geometry, calculus, interactive graph plotter.',feats:['3D Geometry','Graph Plot','AI Solver','Formulas'],g:'linear-gradient(135deg,#7c3aed,#4f46e5)',bg:'rgba(124,58,237,.1)',b:'rgba(124,58,237,.25)',f:'maths'},{n:'Science',i:'🔬',d:'Virtual experiments, 3D cell models, chemistry & physics sims.',feats:['Virtual Lab','3D Models','NCERT','Experiments'],g:'linear-gradient(135deg,#10b981,#06b6d4)',bg:'rgba(16,185,129,.1)',b:'rgba(16,185,129,.25)',f:'science'},{n:'Physics',i:'⚡',d:'Simulations, wave lab, optics, electromagnetics — fully animated.',feats:['Simulations','Wave Lab','3D Atom','Numericals'],g:'linear-gradient(135deg,#f59e0b,#ef4444)',bg:'rgba(245,158,11,.1)',b:'rgba(245,158,11,.25)',f:'physics'},{n:'Chemistry',i:'⚗️',d:'Interactive periodic table, 3D molecules, reaction animations.',feats:['Periodic Table','3D Molecules','Reactions','Organic'],g:'linear-gradient(135deg,#06b6d4,#0284c7)',bg:'rgba(6,182,212,.1)',b:'rgba(6,182,212,.25)',f:'chemistry'},{n:'Biology',i:'🧬',d:'3D cell, DNA animations, human body systems, genetics.',feats:['3D Cell','DNA Viz','Body Systems','Genetics'],g:'linear-gradient(135deg,#10b981,#84cc16)',bg:'rgba(16,185,129,.1)',b:'rgba(16,185,129,.25)',f:'biology'},{n:'English',i:'📝',d:'Grammar AI, writing coach, vocabulary builder, speech.',feats:['Grammar AI','Writing','Vocab','Speech'],g:'linear-gradient(135deg,#8b5cf6,#ec4899)',bg:'rgba(139,92,246,.1)',b:'rgba(139,92,246,.25)',f:'english'},{n:'Hindi',i:'🇮🇳',d:'व्याकरण, साहित्य, निबंध, NCERT पाठ्यक्रम।',feats:['व्याकरण','साहित्य','निबंध','पत्र'],g:'linear-gradient(135deg,#f97316,#ef4444)',bg:'rgba(249,115,22,.1)',b:'rgba(249,115,22,.25)',f:'hindi'},{n:'History',i:'🏛️',d:'Timeline visualizations, map-based learning, NCERT.',feats:['Timelines','Maps','Documents','NCERT'],g:'linear-gradient(135deg,#d97706,#92400e)',bg:'rgba(217,119,6,.1)',b:'rgba(217,119,6,.25)',f:'history'},{n:'Geography',i:'🌏',d:'Interactive maps, climate models, physical features of India.',feats:['3D Maps','Climate','Monsoon','India Geo'],g:'linear-gradient(135deg,#0ea5e9,#06b6d4)',bg:'rgba(14,165,233,.1)',b:'rgba(14,165,233,.25)',f:'geography'},{n:'Economics',i:'📊',d:'Supply-demand curves, GDP animations, stock market sim.',feats:['Market Sim','Graphs','GDP','Budget'],g:'linear-gradient(135deg,#10b981,#059669)',bg:'rgba(16,185,129,.1)',b:'rgba(16,185,129,.25)',f:'economics'},{n:'Accountancy',i:'🧾',d:'Journal entries, balance sheets, ratio analysis auto-checker.',feats:['Trial Balance','P&L','Ratios','Journal'],g:'linear-gradient(135deg,#6366f1,#8b5cf6)',bg:'rgba(99,102,241,.1)',b:'rgba(99,102,241,.25)',f:'accounts'},{n:'Computer Science',i:'💻',d:'Python, algorithms, OOP, SQL, AI/ML basics — live compiler.',feats:['Live Compiler','DSA','SQL','Python'],g:'linear-gradient(135deg,#06b6d4,#6366f1)',bg:'rgba(6,182,212,.1)',b:'rgba(6,182,212,.25)',f:'cs'},{n:'Business Studies',i:'💼',d:'Management, marketing, finance, entrepreneurship case studies.',feats:['Case Studies','Marketing','Finance','SEBI'],g:'linear-gradient(135deg,#f59e0b,#f97316)',bg:'rgba(245,158,11,.1)',b:'rgba(245,158,11,.25)',f:'business'},{n:'Political Science',i:'⚖️',d:'Constitution, governance, PIL, international relations.',feats:['Constitution','PIL','Governance','IR'],g:'linear-gradient(135deg,#ef4444,#dc2626)',bg:'rgba(239,68,68,.1)',b:'rgba(239,68,68,.25)',f:'polsci'},{n:'Social Science',i:'🌐',d:'History, Geography, Civics, Economics — integrated Class 6–10.',feats:['History','Geography','Civics','Economics'],g:'linear-gradient(135deg,#8b5cf6,#06b6d4)',bg:'rgba(139,92,246,.1)',b:'rgba(139,92,246,.25)',f:'social'}];
+  const g=document.getElementById('sgrid');
+  subs.forEach(s=>{g.innerHTML+=`<a href="subjects/${s.f}.html" class="sbcard" style="--sbg:${s.g};--sbbg:${s.bg};--sbb:${s.b}"><div class="sbico">${s.i}</div><div class="sbname">${s.n}</div><div class="sbdesc">${s.d}</div><div class="sbfeats">${s.feats.map(f=>`<span class="sbfeat">${f}</span>`).join('')}</div><div class="sbarr">→</div></a>`;});
+}
+
+/* ──────────────── AI FEATURES ──────────────── */
+function buildAI(){
+  const feats=[{i:'🧠',t:'Conversational AI Tutor',d:'Socratic tutor with voice chat. Explains concepts multiple ways. Powered by Claude + Gemini.',list:['Voice chat','Socratic method','3 explanation styles','Multi-language'],ft:true},{i:'📄',t:'Auto-Generate from PDF/URL',d:'Upload any textbook or paste a URL — AI converts it into flashcards, quizzes, mind maps instantly.',tag:'NEW'},{i:'🔮',t:'Predictive Struggle Detection',d:'AI identifies which topics you\'re about to struggle with and intervenes before you get stuck.',tag:'NEW'},{i:'🎭',t:'Study RPG Mode',d:'Turn any subject into a narrative game. Be a forensic scientist solving crimes using chemistry.',tag:'NEW'},{i:'📊',t:'Weakness Heatmap',d:'Visual dashboard showing exactly which sub-topics need attention before your exam.',list:['Topic analysis','Exam proximity score','Daily focus plan','AI intervention'],ft:true},{i:'🌐',t:'Multilingual AI',d:'Real-time translation of all content, UI, and video subtitles into regional Indian languages.',tag:'NEW'},{i:'🔁',t:'Spaced Repetition Engine',d:'Built-in SRS synced with your current coursework. Smarter than Anki — knows your syllabus.',list:['Syllabus-synced SRS','Forgetting curve AI','Shared flashcard decks']},{i:'✍️',t:'AI Essay Feedback',d:'Checks argument structure, source credibility, logical fallacies — not just grammar corrections.'},{i:'💬',t:'Smart Document Chat',d:'Upload a textbook or research paper and ask questions directly about it (RAG-based).'}];
+  const g=document.getElementById('aifgrid');
+  feats.forEach(f=>{g.innerHTML+=`<div class="aifc${f.ft?' ft':''}"><div class="aifc-h"><div class="aifc-i">${f.i}</div><div><div class="aifc-t">${f.t}${f.tag?`<span class="nbdg">${f.tag}</span>`:''}</div><div class="aifc-d">${f.d}</div></div></div>${f.list?`<ul class="aifc-list">${f.list.map(l=>`<li>${l}</li>`).join('')}</ul>`:''}</div>`;});
+}
+
+/* ──────────────── GAMIFICATION ──────────────── */
+function buildGame(){
+  const cards=[{i:'⚡',t:'XP & Level System',d:'Earn XP for every lesson completed, quiz aced, and streak maintained. Level up your Scholar Rank.',x:78},{i:'🏆',t:'Peer Group Leaderboards',d:'Compete with your cohort, not the entire world. Weekly, monthly rankings by subject.',x:65},{i:'🔥',t:'Meaningful Streaks',d:'30-day subject streaks with escalating rewards. Miss a day? A shield protects you once a week.',x:92},{i:'🎭',t:'Study RPG Mode',d:'Be a forensic scientist solving chemistry cases. Gamified narrative that teaches while you play.',x:48},{i:'🏅',t:'Soft Skill Badges',d:'Rewards for teaching peers, asking critical questions, and revising wrong answers — not just scores.',x:81},{i:'🔓',t:'Unlockable Content',d:'Advanced modules unlock only after mastering fundamentals — curiosity without paywalls.',x:55}];
+  const g=document.getElementById('ggrid');
+  cards.forEach(c=>{g.innerHTML+=`<div class="gcard"><div class="gcico">${c.i}</div><div class="gctitle">${c.t}</div><div class="gcdesc">${c.d}</div><div class="xpb"><div class="xpf" style="width:${c.x}%"></div></div></div>`;});
+}
+
+/* ──────────────── ANALYTICS ──────────────── */
+function buildAnalytics(){
+  const cards=[{t:'Topics Mastered',v:'248',c:'↑ 12 this week',bars:[40,55,35,70,60,80,65],heat:true},{t:'Study Streak',v:'🔥 21',c:'Personal best!',bars:[20,80,60,90,75,85,100]},{t:'Efficiency Score',v:'87%',c:'↑ 4% vs last week',bars:[70,75,80,78,83,85,87]}];
+  const rand=()=>{const r=Math.random();return r>.8?'l4':r>.6?'l3':r>.35?'l2':r>.15?'l1':'';};
+  const g=document.getElementById('agrid');
+  cards.forEach(c=>{g.innerHTML+=`<div class="acard"><div class="atitle">${c.t}</div><div class="aval">${c.v}</div><div class="ach">${c.c}</div><div class="mbars">${c.bars.map(b=>`<div class="mbar" style="height:${b}%"></div>`).join('')}</div>${c.heat?`<div class="heatmap">${Array.from({length:4},()=>`<div class="hmrow">${Array.from({length:7},()=>`<div class="hmc ${rand()}"></div>`).join('')}</div>`).join('')}</div>`:''}</div>`;});
+}
+
+/* ──────────────── EXAMS ──────────────── */
+function buildExams(){
+  const ex=[{i:'🏅',n:'JEE Main & Advanced',d:'Physics, Chemistry, Maths',t:'Engineering'},{i:'🏅',n:'NEET UG',d:'Biology, Physics, Chemistry',t:'Medical'},{i:'📋',n:'UPSC CSE',d:'General Studies + Optional',t:'Govt'},{i:'📋',n:'SSC CGL/CHSL',d:'Quant, English, Reasoning',t:'Govt'},{i:'🏦',n:'IBPS PO/Clerk',d:'Banking entrance exams',t:'Banking'},{i:'🛡️',n:'NDA / CDS',d:'Defence services entrance',t:'Defence'},{i:'📊',n:'CAT / MAT',d:'MBA entrance examinations',t:'MBA'},{i:'⚙️',n:'GATE',d:'M.Tech & PSU recruitment',t:'M.Tech'},{i:'🎓',n:'CUET UG',d:'Central University entrance',t:'University'},{i:'🔬',n:'Olympiads / NTSE',d:'IMO, SOF, KVPY, NTSE',t:'Olympiad'},{i:'🚂',n:'RRB NTPC',d:'Railway Non-Technical Posts',t:'Railways'},{i:'⚖️',n:'CLAT',d:'National Law Universities',t:'Law'}];
+  const g=document.getElementById('examgrid');
+  ex.forEach(e=>{g.innerHTML+=`<a href="exams/index.html" class="ecard"><div class="eico">${e.i}</div><div class="ename">${e.n}</div><div class="edesc">${e.d}</div><span class="etag">${e.t}</span></a>`;});
+}
+
+/* ──────────────── TOOLS ──────────────── */
+function buildTools(){
+  const tl=[{i:'🎯',t:'AI Mock Test Engine',d:'Custom tests on any topic. AI generates questions, tracks score, gives explanations.',tag:'⚡ AI',l:'tools/mock-test.html'},{i:'📝',t:'Smart Notes Generator',d:'Comprehensive notes, flashcards, mind maps — instantly from any topic.',tag:'🧠 Auto',l:'notes/index.html'},{i:'📊',t:'Student Dashboard',d:'Track progress, streaks, XP, badges and goals across all subjects.',tag:'📈 Analytics',l:'dashboard/index.html'},{i:'🏆',t:'Competitive Exam Hub',d:'JEE, NEET, UPSC — syllabus, books, AI study guides for 12 exams.',tag:'📚 12 Exams',l:'exams/index.html'},{i:'🎥',t:'Live Classes',d:'Free live classes from PW, Next Toppers, Vedantu + best YouTube channels.',tag:'🔴 Free',l:'live/index.html'},{i:'📱',t:'Download Android APK',d:'Install Study Superz as a native Android app. Best mobile experience.',tag:'📲 Free',l:'https://median.co/share/bneyddw#apk'}];
+  const g=document.getElementById('tgrid');
+  tl.forEach(t=>{g.innerHTML+=`<a href="${t.l}" ${t.l.startsWith('http')?'target="_blank"':''} class="tcard"><div class="tico">${t.i}</div><div class="ttitle">${t.t}</div><div class="tdesc">${t.d}</div><span class="ttag">${t.tag}</span></a>`;});
+}
+
+/* ──────────────── PWA ──────────────── */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('pwabtn').onclick=async()=>{if(deferredPrompt){await deferredPrompt.prompt();deferredPrompt=null;}document.getElementById('instpop').classList.remove('show');};});
+
+/* ──────────────── PUSH NOTIFICATIONS ──────────────── */
+async function askNotif(){
+  document.getElementById('nbar').classList.remove('show');localStorage.setItem('nb','1');
+  if(!('Notification' in window)){showToast('Notifications not supported.','e');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){showToast('✅ Notifications enabled! Exam alerts incoming.','s');setTimeout(()=>new Notification('📚 Study Superz',{body:'Welcome! Your daily study goal is ready. Let\'s go! 🚀',icon:'assets/logo.png',tag:'welcome'}),2000);}
+  else showToast('Notifications blocked. Enable in browser settings.','e');
+}
+
+/* ──────────────── SUPERZ AI ──────────────── */
+let szOpen=false,szModel='gemini';
+const SYS=`You are Superz, the AI assistant for Study Superz — India's most advanced AI EdTech platform built entirely by Nitish Yadav (yadavnitish23709@gmail.com). Key facts:
+- Platform: Study Superz (Nursery to Class 12, 15 classes, 50+ subjects)
+- Creator: Nitish Yadav — Full-Stack Developer, EdTech Creator, AI Builder
+- Features: AI tutor, 3D models, graph plotter, physics simulators, periodic table, mock tests, smart notes generator, live study rooms, spaced repetition, gamification (XP/streaks/badges/RPG mode), weakness heatmap, predictive struggle detection, multilingual AI
+- AI Models: Claude (Anthropic), Gemini (Google), Grok (xAI), DeepSeek
+- Exams: JEE, NEET, UPSC, SSC, IBPS, NDA, CAT, GATE, CUET, Olympiads, RRB, CLAT
+- Live resources: PWSphere, Next Toppers, Vedantu, YouTube channels
+- PWA + Android APK: https://median.co/share/bneyddw#apk
+- All features are FREE. Platform built solo by Nitish Yadav.
+Be helpful, educational, enthusiastic. Use emojis. Keep answers concise and clear.`;
+
+function toggleSZ(){szOpen=!szOpen;document.getElementById('szwin').classList.toggle('open',szOpen);}
+function szQ(m){document.getElementById('szinp').value=m;szSend();}
+function setMod(m,btn){szModel=m;document.querySelectorAll('.szmod').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+async function szSend(){
+  const inp=document.getElementById('szinp');const msg=inp.value.trim();if(!msg)return;inp.value='';
+  szAddMsg(msg,'user');const typ=szTyping();
+  try{
+    let reply='';
+    if(szModel==='gemini') reply=await callGemini(msg);
+    else if(szModel==='grok') reply=await callGrok(msg);
+    else if(szModel==='deepseek') reply=await callDeepSeek(msg);
+    else reply=await callClaude(msg);
+    typ.remove();szAddMsg(reply,'bot');
+  }catch(e){typ.remove();szAddMsg('⚠️ Connection issue. Try another AI model!','bot');}
+}
+
+async function callGemini(msg){
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEM}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:SYS+'\n\nUser: '+msg+'\nSuperz:'}]}],generationConfig:{maxOutputTokens:600}})});
+  const d=await r.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||'No response.';
+}
+async function callGrok(msg){
+  const r=await fetch('https://api.x.ai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROK},body:JSON.stringify({model:'grok-beta',messages:[{role:'system',content:SYS},{role:'user',content:msg}],max_tokens:600})});
+  const d=await r.json();return d.choices?.[0]?.message?.content||'No response from Grok.';
+}
+async function callDeepSeek(msg){
+  const r=await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+DS},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:SYS},{role:'user',content:msg}],max_tokens:600})});
+  const d=await r.json();return d.choices?.[0]?.message?.content||'No response from DeepSeek.';
+}
+async function callClaude(msg){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:SYS,messages:[{role:'user',content:msg}]})});
+  const d=await r.json();return d.content?.map(c=>c.text||'').join('')||'No response.';
+}
+
+function szAddMsg(text,type){
+  const ms=document.getElementById('szmsgs');const div=document.createElement('div');
+  div.className=`szmsg ${type}`;div.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  ms.appendChild(div);ms.scrollTop=ms.scrollHeight;return div;
+}
+function szTyping(){
+  const ms=document.getElementById('szmsgs');const div=document.createElement('div');
+  div.className='sztyp';div.innerHTML='<div class="std"></div><div class="std"></div><div class="std"></div>';
+  ms.appendChild(div);ms.scrollTop=ms.scrollHeight;return div;
+}
+
+/* ──────────────── PROTECTION ──────────────── */
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j','U','S','I','J'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+
+/* ──────────────── SERVICE WORKER ──────────────── */
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
