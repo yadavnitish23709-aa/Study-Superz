@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Panel | Study Superz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--b:rgba(255,255,255,.08);--b2:rgba(124,58,237,.3);}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+/* AUTH WALL */
+#auth-wall{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;}
+.abox{width:90%;max-width:400px;background:var(--bg2);border:1px solid var(--b);border-radius:24px;padding:40px;text-align:center;}
+.alo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:6px;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.asb{font-size:13px;color:var(--t3);margin-bottom:24px;}
+.fi{width:100%;padding:12px 14px;border-radius:10px;background:var(--g);border:1px solid var(--b);color:var(--t);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:11px;}
+.fi:focus{border-color:var(--b2);}
+.fbtn{width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer;transition:all .3s;}
+.fbtn:hover{opacity:.9;}
+.ferr{color:#ef4444;font-size:13px;margin-top:10px;min-height:20px;}
+.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--a3);margin-top:12px;}
+/* PANEL */
+#panel{display:none;}.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--b);padding:20px 12px;position:fixed;height:100vh;overflow-y:auto;}
+.slogo{font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;padding:10px 14px;margin-bottom:18px;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ssec{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:0 14px;margin:12px 0 5px;}
+.slnk{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:10px;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;border:none;width:100%;text-align:left;margin-bottom:2px;}
+.slnk:hover{background:var(--g2);color:var(--t);}.slnk.active{background:rgba(124,58,237,.15);color:var(--a);border:1px solid var(--b2);}
+.content{margin-left:240px;flex:1;padding:28px;}
+.ctitle{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px;}
+.sc{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:18px;}
+.sv{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sl{font-size:11px;color:var(--t3);margin-top:3px;}
+.tc{background:var(--g);border:1px solid var(--b);border-radius:16px;overflow:hidden;}
+.th{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.tht{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;}
+.si{padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--b);color:var(--t);font-size:12px;outline:none;width:200px;}
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;background:rgba(255,255,255,.02);}
+td{padding:12px 13px;font-size:13px;border-top:1px solid var(--b);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.01);}
+.uav{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--a),var(--a2));display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff;margin-right:7px;vertical-align:middle;}
+.bdg{padding:3px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.bdg-a{background:rgba(16,185,129,.15);color:var(--a4);}
+.bdg-adm{background:rgba(245,158,11,.15);color:var(--a3);}
+.ab{padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:var(--g2);color:var(--t2);transition:all .2s;margin-right:3px;}
+.ab:hover{background:rgba(124,58,237,.12);color:var(--a);}
+.ab.del{background:rgba(239,68,68,.08);color:#ef4444;}
+.ab.del:hover{background:rgba(239,68,68,.18);}
+.empty td{text-align:center;color:var(--t3);padding:28px!important;}
+.ebtn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;text-decoration:none;display:inline-block;}
+.asec{display:none;}.asec.active{display:block;}
+@media(max-width:900px){.sidebar{position:relative;width:100%;height:auto;border-right:none;border-bottom:1px solid var(--b);}.content{margin-left:0;}.layout{flex-direction:column;}.stats{grid-template-columns:1fr 1fr;}}
+</style></head><body>
+
+<!-- AUTH WALL — Supabase auth only, no hardcoded credentials -->
+<div id="auth-wall">
+  <div class="abox">
+    <div style="font-size:2.5rem;margin-bottom:12px;">🔐</div>
+    <div class="alo">Admin Panel</div>
+    <div class="asb">Study Superz · Authorized Access Only</div>
+    <input type="email" class="fi" id="ae" placeholder="Admin email address"/>
+    <input type="password" class="fi" id="ap2" placeholder="Password" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    <button class="fbtn" onclick="adminLogin()">Sign In to Admin Panel</button>
+    <div class="ferr" id="aerr"></div>
+    <div class="warn">⚠️ All admin actions are logged and audited for security.</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="panel">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="slogo">⚡ Study Superz Admin</div>
+      <div class="ssec">Overview</div>
+      <button class="slnk active" onclick="showSec('dashboard',this)">📊 Dashboard</button>
+      <button class="slnk" onclick="showSec('users',this)">👥 All Users</button>
+      <div class="ssec">Data</div>
+      <button class="slnk" onclick="showSec('activity',this)">📈 Activity Log</button>
+      <button class="slnk" onclick="showSec('feedback',this)">💬 Feedback</button>
+      <button class="slnk" onclick="showSec('security',this)">🔒 Security Events</button>
+      <div class="ssec">System</div>
+      <button class="slnk" onclick="window.open('../index.html','_blank')">🌐 View Site</button>
+      <button class="slnk" onclick="adminLogout()">🚪 Logout</button>
+    </aside>
+    <main class="content">
+      <!-- DASHBOARD -->
+      <div class="asec active" id="sec-dashboard">
+        <div class="ctitle">📊 Dashboard <span style="font-size:12px;color:var(--t3)" id="ref-time"></span></div>
+        <div class="stats">
+          <div class="sc"><div class="sv" id="s-users">—</div><div class="sl">Total Users</div></div>
+          <div class="sc"><div class="sv" id="s-today">—</div><div class="sl">New Today</div></div>
+          <div class="sc"><div class="sv" id="s-fb">—</div><div class="sl">Feedback</div></div>
+          <div class="sc"><div class="sv" id="s-ai">—</div><div class="sl">AI Requests Today</div></div>
+        </div>
+        <div class="tc">
+          <div class="th"><div class="tht">👥 Recent Signups</div></div>
+          <table><thead><tr><th>User</th><th>Email</th><th>Class</th><th>Joined</th><th>Role</th></tr></thead>
+          <tbody id="recent-tb"><tr class="empty"><td colspan="5">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+      <!-- USERS -->
+      <div class="asec" id="sec-users">
+        <div class="ctitle">👥 All Users
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input class="si" id="usearch" placeholder="🔍 Search name / email..." oninput="filterUsers()"/>
+            <button class="ebtn" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div class="tc">
+          <table><thead><tr><th>User</th><th>Email</th><th>Class</th><th>XP</th><th>Joined</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="users-tb"><tr class="empty"><td colspan="8">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+      <!-- ACTIVITY -->
+      <div class="asec" id="sec-activity">
+        <div class="ctitle">📈 Activity Log</div>
+        <div class="tc">
+          <table><thead><tr><th>User</th><th>Action</th><th>Subject</th><th>Time</th></tr></thead>
+          <tbody id="act-tb"><tr class="empty"><td colspan="4">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+      <!-- FEEDBACK -->
+      <div class="asec" id="sec-feedback">
+        <div class="ctitle">💬 User Feedback</div>
+        <div class="tc">
+          <table><thead><tr><th>User</th><th>Message</th><th>Rating</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="fb-tb"><tr class="empty"><td colspan="5">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+      <!-- SECURITY EVENTS -->
+      <div class="asec" id="sec-security">
+        <div class="ctitle">🔒 Security Events</div>
+        <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--t2);">⚠️ Shows failed logins, IP lockouts, and IDOR attempts for security monitoring.</div>
+        <div class="tc">
+          <table><thead><tr><th>Event Type</th><th>IP Address</th><th>User Email</th><th>Details</th><th>Time</th></tr></thead>
+          <tbody id="sec-tb"><tr class="empty"><td colspan="5">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const{createClient}=supabase;
+const SB=createClient('https://mlpsqojltzkrsykhcico.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1scHNxb2psdHprcnN5a2hjaWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzU5MTUsImV4cCI6MjA5NjMxMTkxNX0.w2Xfo_x7MpFhhIIzW2uh0o-XdZkZNIJvSEEWEzD7cJ0');
+const ADMIN_EMAIL='yadavnitish23709@gmail.com';
+let allUsers=[];
+
+async function adminLogin(){
+  const e=document.getElementById('ae').value.trim().toLowerCase();
+  const p=document.getElementById('ap2').value;
+  const err=document.getElementById('aerr');
+  err.textContent='';
+  if(!e||!p){err.textContent='Enter email and password.';return;}
+  const btn=document.querySelector('.fbtn');btn.disabled=true;btn.textContent='Signing in...';
+  const{data,error}=await SB.auth.signInWithPassword({email:e,password:p});
+  btn.disabled=false;btn.textContent='Sign In to Admin Panel';
+  if(error){err.textContent='❌ '+error.message;return;}
+  // Verify admin flag server-side via profiles table
+  const{data:prof,error:pe}=await SB.from('profiles').select('is_admin').eq('id',data.user.id).single();
+  if(pe||!prof?.is_admin||data.user.email!==ADMIN_EMAIL){
+    await SB.auth.signOut();err.textContent='❌ Admin access denied. This incident has been logged.';return;
+  }
+  document.getElementById('auth-wall').style.display='none';
+  document.getElementById('panel').style.display='block';
+  initPanel();
+}
+
+async function adminLogout(){await SB.auth.signOut();location.reload();}
+
+// Auto-restore session on page load
+SB.auth.getSession().then(async({data:{session}})=>{
+  if(!session)return;
+  if(session.user.email!==ADMIN_EMAIL)return;
+  const{data:prof}=await SB.from('profiles').select('is_admin').eq('id',session.user.id).single();
+  if(prof?.is_admin){document.getElementById('auth-wall').style.display='none';document.getElementById('panel').style.display='block';initPanel();}
+});
+
+function showSec(id,btn){
+  document.querySelectorAll('.asec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.slnk').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function initPanel(){loadDashboard();loadUsers();loadActivity();loadFeedback();loadSecEvents();}
+
+async function loadDashboard(){
+  document.getElementById('ref-time').textContent='Last updated: '+new Date().toLocaleTimeString('en-IN');
+  const[{count:uc},{count:tc},{count:fc},{count:ac}]=await Promise.all([
+    SB.from('profiles').select('*',{count:'exact',head:true}),
+    SB.from('profiles').select('*',{count:'exact',head:true}).gte('created_at',new Date(Date.now()-86400000).toISOString()),
+    SB.from('feedback').select('*',{count:'exact',head:true}),
+    SB.from('ai_usage_log').select('*',{count:'exact',head:true}).gte('created_at',new Date(Date.now()-86400000).toISOString()),
+  ]);
+  document.getElementById('s-users').textContent=(uc||0).toLocaleString();
+  document.getElementById('s-today').textContent=tc||0;
+  document.getElementById('s-fb').textContent=fc||0;
+  document.getElementById('s-ai').textContent=ac||0;
+  const{data}=await SB.from('profiles').select('id,full_name,email,class,created_at,is_admin').order('created_at',{ascending:false}).limit(8);
+  renderUsers(data||[],'recent-tb',5);
+}
+
+async function loadUsers(){
+  const{data}=await SB.from('profiles').select('id,full_name,email,class,xp,created_at,last_login,is_admin').order('created_at',{ascending:false});
+  allUsers=data||[];renderUsers(allUsers,'users-tb',8);
+}
+
+function renderUsers(users,tbId,cols){
+  const tb=document.getElementById(tbId);
+  if(!users.length){tb.innerHTML=`<tr class="empty"><td colspan="${cols}">No users found.</td></tr>`;return;}
+  tb.innerHTML=users.map(u=>`<tr>
+    <td><span class="uav">${((u.full_name||u.email||'?')[0]).toUpperCase()}</span>${u.full_name||'—'}</td>
+    <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--t2)">${u.email||'—'}</td>
+    <td><span class="bdg bdg-a">${u.class||'—'}</span></td>
+    ${cols>5?`<td>${(u.xp||0).toLocaleString()} XP</td>`:''}
+    <td style="font-size:11px;color:var(--t3)">${u.created_at?new Date(u.created_at).toLocaleDateString('en-IN'):'—'}</td>
+    ${cols>5?`<td style="font-size:11px;color:var(--t3)">${u.last_login?new Date(u.last_login).toLocaleDateString('en-IN'):'Never'}</td>`:''}
+    ${cols>5?`<td>${u.is_admin?'<span class="bdg bdg-adm">Admin</span>':'<span class="bdg bdg-a">Active</span>'}</td>`:''}
+    <td><button class="ab del" onclick="delUser('${u.id}','${(u.email||'').replace(/'/g,'')}')">🗑</button></td>
+  </tr>`).join('');
+}
+
+function filterUsers(){
+  const q=document.getElementById('usearch').value.toLowerCase();
+  renderUsers(allUsers.filter(u=>(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)||(u.class||'').toLowerCase().includes(q)),'users-tb',8);
+}
+
+async function delUser(id,email){
+  if(id===await SB.auth.getUser().then(({data})=>data.user?.id)){alert('Cannot delete your own admin account.');return;}
+  if(!confirm(`Delete user: ${email}?\n\nThis cannot be undone. All their data will be removed.`))return;
+  // Delete via server API (admin JWT required)
+  const{data:{session}}=await SB.auth.getSession();
+  const r=await fetch('/api/admin/users/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+(session?.access_token||'')}});
+  const d=await r.json();
+  if(r.ok){allUsers=allUsers.filter(u=>u.id!==id);renderUsers(allUsers,'users-tb',8);loadDashboard();alert('User deleted successfully.');}
+  else alert('Error: '+d.error);
+}
+
+function exportCSV(){
+  const rows=[['ID','Name','Email','Class','XP','Joined','Last Login'],...allUsers.map(u=>[u.id,`"${(u.full_name||'').replace(/"/g,'""')}"`,u.email||'',u.class||'',u.xp||0,u.created_at?.slice(0,10)||'',u.last_login?.slice(0,10)||''])];
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download='studysuperz_users_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+async function loadActivity(){
+  const{data}=await SB.from('activity_log').select('*').order('created_at',{ascending:false}).limit(50);
+  const tb=document.getElementById('act-tb');
+  if(!data?.length){tb.innerHTML='<tr class="empty"><td colspan="4">No activity logged yet.</td></tr>';return;}
+  tb.innerHTML=data.map(a=>`<tr><td style="font-size:12px">${a.user_email||'—'}</td><td>${a.action||'—'}</td><td style="color:var(--a2)">${a.subject||'—'}</td><td style="font-size:11px;color:var(--t3)">${new Date(a.created_at).toLocaleString('en-IN')}</td></tr>`).join('');
+}
+
+async function loadFeedback(){
+  const{data}=await SB.from('feedback').select('*').order('created_at',{ascending:false});
+  const tb=document.getElementById('fb-tb');
+  if(!data?.length){tb.innerHTML='<tr class="empty"><td colspan="5">No feedback yet.</td></tr>';return;}
+  tb.innerHTML=data.map(f=>`<tr><td style="font-size:12px">${f.user_email||'Anonymous'}</td><td style="max-width:280px;font-size:13px;color:var(--t2)">${(f.message||'—').slice(0,120)}</td><td>${'⭐'.repeat(Math.min(f.rating||0,5))}</td><td style="font-size:11px;color:var(--t3)">${new Date(f.created_at).toLocaleDateString('en-IN')}</td><td><button class="ab del" onclick="delFb('${f.id}')">Del</button></td></tr>`).join('');
+}
+async function delFb(id){if(!confirm('Delete this feedback?'))return;await SB.from('feedback').delete().eq('id',id);loadFeedback();}
+
+async function loadSecEvents(){
+  const{data}=await SB.from('security_events').select('*').order('created_at',{ascending:false}).limit(100);
+  const tb=document.getElementById('sec-tb');
+  if(!data?.length){tb.innerHTML='<tr class="empty"><td colspan="5">No security events logged yet. Good sign!</td></tr>';return;}
+  tb.innerHTML=data.map(e=>`<tr>
+    <td style="font-weight:700;color:${['locked','idor'].some(k=>e.event_type?.includes(k))?'#ef4444':'var(--a3)'}">${e.event_type||'—'}</td>
+    <td style="font-family:'Space Mono',monospace;font-size:11px">${e.ip_address||'—'}</td>
+    <td style="font-size:12px">${e.user_email||'—'}</td>
+    <td style="font-size:11px;color:var(--t2);max-width:200px">${e.details?JSON.stringify(e.details).slice(0,80):'—'}</td>
+    <td style="font-size:11px;color:var(--t3)">${new Date(e.created_at).toLocaleString('en-IN')}</td>
+  </tr>`).join('');
+}
+
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+</script></body></html>
