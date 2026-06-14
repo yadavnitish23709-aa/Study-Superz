@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Smart Notes | Study Superz</title>
+<link rel="manifest" href="../manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--b:rgba(255,255,255,.08);--b2:rgba(124,58,237,.3);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;padding:14px 32px;background:rgba(6,6,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;}
+.bk{padding:8px 16px;border-radius:8px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;text-decoration:none;}.bk:hover{background:var(--g2);color:var(--t);}
+.nt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-right:auto;}
+.layout{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 57px);}
+.sidebar{background:var(--bg2);border-right:1px solid var(--b);padding:24px;overflow-y:auto;}
+.sb-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:20px;}
+.gen-form{}
+.fi{width:100%;padding:12px 14px;border-radius:10px;background:var(--g);border:1px solid var(--b);color:var(--t);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;}
+.fi:focus{border-color:var(--b2);}
+select.fi option{background:var(--bg2);}
+.gen-btn{width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:all .3s;margin-bottom:20px;}
+.gen-btn:hover{opacity:.9;transform:translateY(-1px);}
+.saved-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.note-list{display:flex;flex-direction:column;gap:6px;}
+.note-item{padding:11px 14px;border-radius:10px;background:var(--g);border:1px solid var(--b);cursor:pointer;transition:all .2s;}
+.note-item:hover{border-color:var(--b2);background:rgba(124,58,237,.06);}
+.note-item.active{border-color:var(--a);background:rgba(124,58,237,.12);}
+.ni-title{font-weight:600;font-size:13px;margin-bottom:2px;}
+.ni-meta{font-size:11px;color:var(--t3);}
+.main{padding:32px;overflow-y:auto;}
+.note-display{}
+.nd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.nd-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;}
+.nd-actions{display:flex;gap:8px;}
+.act-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--g2);color:var(--t2);transition:all .2s;}
+.act-btn:hover{background:rgba(124,58,237,.15);color:var(--a);}
+.act-btn.del{background:rgba(239,68,68,.1);color:#ef4444;}
+.note-content{font-size:15px;line-height:1.9;color:var(--t);}
+.note-content h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--a2);margin:24px 0 10px;border-bottom:1px solid var(--b);padding-bottom:8px;}
+.note-content h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--a);margin:18px 0 8px;}
+.note-content strong{color:var(--t);}
+.note-content .formula{font-family:'Space Mono',monospace;font-size:13px;background:rgba(124,58,237,.08);border:1px solid var(--b2);border-radius:8px;padding:11px 14px;margin:10px 0;color:var(--a);overflow-x:auto;white-space:pre-wrap;display:block;}
+.note-content .highlight{background:rgba(245,158,11,.07);border-left:3px solid var(--a3);padding:11px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px;}
+.note-content ul{margin:10px 0 10px 20px;}
+.note-content li{margin-bottom:6px;color:var(--t2);}
+.note-content li strong{color:var(--t);}
+.empty-state{text-align:center;padding:80px 40px;}
+.es-icon{font-size:4rem;margin-bottom:16px;}
+.es-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;margin-bottom:8px;}
+.es-sub{color:var(--t2);font-size:14px;}
+.loading{text-align:center;padding:60px;color:var(--t3);}
+.loading-spinner{font-size:2rem;animation:spin 1s linear infinite;margin-bottom:12px;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.flashcard-section{margin-top:32px;}
+.fc-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:16px;}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.fc{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:20px;cursor:pointer;transition:all .3s;position:relative;min-height:120px;}
+.fc:hover{border-color:var(--b2);transform:translateY(-3px);}
+.fc-front{font-size:14px;font-weight:600;}
+.fc-back{font-size:13px;color:var(--a2);margin-top:10px;display:none;}
+.fc.flipped .fc-back{display:block;}
+.fc.flipped .fc-front{color:var(--t3);}
+.fc-hint{position:absolute;bottom:10px;right:12px;font-size:10px;color:var(--t3);}
+@media(max-width:768px){nav{padding:12px 16px;}.layout{grid-template-columns:1fr;}.sidebar{border-right:none;border-bottom:1px solid var(--b);}.main{padding:20px;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="bk">← Back</a>
+  <span class="nt">📝 Smart Notes Generator</span>
+</nav>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-title">📝 Generate Notes</div>
+    <div class="gen-form">
+      <input class="fi" id="topic-input" placeholder="Enter topic (e.g. Photosynthesis)"/>
+      <select class="fi" id="subj-select">
+        <option value="Mathematics">Mathematics</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Biology" selected>Biology</option>
+        <option value="English">English</option>
+        <option value="Hindi">Hindi</option>
+        <option value="History">History</option>
+        <option value="Geography">Geography</option>
+        <option value="Economics">Economics</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Accountancy">Accountancy</option>
+        <option value="Business Studies">Business Studies</option>
+        <option value="Political Science">Political Science</option>
+        <option value="Social Science">Social Science</option>
+      </select>
+      <select class="fi" id="class-select">
+        <option>Class 6</option><option>Class 7</option><option>Class 8</option>
+        <option>Class 9</option><option selected>Class 10</option>
+        <option>Class 11</option><option>Class 12</option>
+      </select>
+      <select class="fi" id="type-select">
+        <option value="comprehensive">Comprehensive Notes</option>
+        <option value="short">Short Revision Notes</option>
+        <option value="flashcards">Flashcards Only</option>
+        <option value="mindmap">Mind Map Style</option>
+        <option value="ncert">NCERT Summary</option>
+      </select>
+      <button class="gen-btn" onclick="generateNote()">✨ Generate AI Notes</button>
+    </div>
+    <div class="saved-title">📁 Saved Notes</div>
+    <div class="note-list" id="note-list">
+      <div style="font-size:13px;color:var(--t3);padding:12px;">No saved notes yet. Generate your first!</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div id="note-display">
+      <div class="empty-state">
+        <div class="es-icon">📝</div>
+        <div class="es-title">Generate Smart Notes</div>
+        <div class="es-sub">Enter any topic on the left and click Generate. Our AI will create detailed, structured notes with formulas, key points, and flashcards.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let notes=JSON.parse(localStorage.getItem('studysuperz_notes')||'[]');
+renderNoteList();
+
+function renderNoteList(){
+  const nl=document.getElementById('note-list');
+  if(!notes.length){nl.innerHTML='<div style="font-size:13px;color:var(--t3);padding:12px;">No saved notes yet.</div>';return;}
+  nl.innerHTML=notes.map((n,i)=>`<div class="note-item" onclick="loadNote(${i})"><div class="ni-title">${n.topic}</div><div class="ni-meta">${n.subject} · ${n.cls} · ${new Date(n.created).toLocaleDateString('en-IN')}</div></div>`).join('');
+}
+
+function loadNote(i){
+  document.querySelectorAll('.note-item').forEach((el,j)=>el.classList.toggle('active',j===i));
+  showNote(notes[i]);
+}
+
+async function generateNote(){
+  const topic=document.getElementById('topic-input').value.trim();
+  const subject=document.getElementById('subj-select').value;
+  const cls=document.getElementById('class-select').value;
+  const type=document.getElementById('type-select').value;
+  if(!topic)return;
+  document.getElementById('note-display').innerHTML=`<div class="loading"><div class="loading-spinner">⚙️</div><div>Generating AI notes for <strong>${topic}</strong>...</div></div>`;
+  const prompts={
+    comprehensive:`Create comprehensive, well-structured study notes for "${topic}" in ${subject} for ${cls} students. Include: overview, key concepts with explanations, important formulas (wrapped in <code class="formula"></code> tags), memory tips in <div class="highlight"> tags, and a summary. Use <h2> for main sections, <h3> for sub-sections, <strong> for key terms. Make it thorough and educational.`,
+    short:`Create concise revision notes for "${topic}" in ${subject} for ${cls}. Use bullet points, key formulas, and the most important facts only. Wrap formulas in <code class="formula"></code>. Max 400 words.`,
+    flashcards:`Create 10 flashcard questions and answers for "${topic}" in ${subject} for ${cls}. Return HTML with a div of class "flashcard-section" containing a div class="fc-title", then a div class="fc-grid" with 10 divs each having class="fc" containing <div class="fc-front">Question</div><div class="fc-back">Answer</div><div class="fc-hint">Click to flip</div>`,
+    mindmap:`Create a mind map style overview of "${topic}" in ${subject} for ${cls}. Use a hierarchical structure with <h2> for the main topic, <h3> for branches, and bullet points for sub-branches. Include all key connections and relationships.`,
+    ncert:`Summarize the NCERT content on "${topic}" for ${subject} ${cls}. Cover: textbook definition, key points from NCERT, important diagrams described, NCERT examples, and likely board exam questions.`
+  };
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:`You are an expert ${subject} teacher creating study notes for Indian students. Format your response in HTML. Use clear headings, bullet points, and highlight important information. Make notes comprehensive yet easy to understand.`,messages:[{role:'user',content:prompts[type]}]})});
+    const d=await res.json();
+    const content=d.content?.map(c=>c.text||'').join('')||'Could not generate notes.';
+    const note={topic,subject,cls,type,content,created:Date.now()};
+    notes.unshift(note);
+    localStorage.setItem('studysuperz_notes',JSON.stringify(notes.slice(0,50)));
+    renderNoteList();
+    document.querySelectorAll('.note-item').forEach((el,j)=>el.classList.toggle('active',j===0));
+    showNote(note);
+  }catch(e){document.getElementById('note-display').innerHTML='<div style="color:#ef4444;padding:40px;text-align:center;">⚠️ Connection error. Please try again.</div>';}
+}
+
+function showNote(note){
+  const typeLabels={comprehensive:'Comprehensive',short:'Short Revision',flashcards:'Flashcards',mindmap:'Mind Map',ncert:'NCERT Summary'};
+  document.getElementById('note-display').innerHTML=`
+    <div class="nd-header">
+      <div><div class="nd-title">${note.topic}</div><div style="font-size:13px;color:var(--t3);margin-top:4px;">${note.subject} · ${note.cls} · ${typeLabels[note.type]||note.type}</div></div>
+      <div class="nd-actions">
+        <button class="act-btn" onclick="printNote()">🖨️ Print</button>
+        <button class="act-btn" onclick="copyNote()">📋 Copy</button>
+        <button class="act-btn del" onclick="deleteNote('${note.topic}')">🗑️ Delete</button>
+      </div>
+    </div>
+    <div class="note-content" id="nc">${note.content}</div>`;
+  // Make flashcards interactive
+  document.querySelectorAll('.fc').forEach(fc=>{fc.onclick=()=>fc.classList.toggle('flipped');});
+}
+
+function printNote(){window.print();}
+function copyNote(){
+  const nc=document.getElementById('nc');if(!nc)return;
+  const text=nc.innerText;navigator.clipboard.writeText(text).then(()=>alert('Notes copied to clipboard!'));
+}
+function deleteNote(topic){
+  if(!confirm('Delete notes for "'+topic+'"?'))return;
+  notes=notes.filter(n=>n.topic!==topic);
+  localStorage.setItem('studysuperz_notes',JSON.stringify(notes));
+  renderNoteList();
+  document.getElementById('note-display').innerHTML='<div class="empty-state"><div class="es-icon">📝</div><div class="es-title">Note deleted</div><div class="es-sub">Generate a new note from the sidebar.</div></div>';
+}
+
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+</script>
+</body>
+</html>
