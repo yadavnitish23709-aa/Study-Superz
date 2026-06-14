@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mathematics | Study Superz</title>
+<link rel="manifest" href="../manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--b:rgba(255,255,255,.08);--b2:rgba(124,58,237,.3);}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;padding:14px 32px;background:rgba(6,6,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.bk{padding:8px 16px;border-radius:8px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;text-decoration:none;transition:all .2s;}.bk:hover{background:var(--g2);color:var(--t);}
+.nt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-right:auto;}
+.tabs{display:flex;gap:3px;background:var(--g);border:1px solid var(--b);border-radius:10px;padding:4px;overflow-x:auto;}
+.tab{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);background:transparent;border:none;transition:all .2s;white-space:nowrap;}
+.tab.active{background:var(--a);color:#fff;}
+.hero{padding:56px 32px 40px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(79,70,229,.06));border-bottom:1px solid var(--b);}
+.hi{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;}
+.hicon{font-size:5rem;margin-bottom:12px;}.htitle{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);margin-bottom:12px;}
+.htitle span{background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdesc{color:var(--t2);font-size:1rem;line-height:1.7;max-width:600px;margin-bottom:20px;}
+.hstats{display:flex;gap:28px;flex-wrap:wrap;}.hsi .n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--a);}.hsi .l{font-size:12px;color:var(--t3);}
+#c3d{width:260px;height:260px;border-radius:16px;border:1px solid var(--b);}
+.main{max-width:1100px;margin:0 auto;padding:36px 32px;}
+.sec{display:none;}.sec.active{display:block;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.cc{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:22px;cursor:pointer;transition:all .3s;}
+.cc:hover{border-color:var(--b2);transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.cn{font-family:'Space Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px;}
+.ct{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:7px;}.cd{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:14px;}
+.cm{display:flex;gap:10px;align-items:center;}.cb{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;}
+.cb.easy{background:rgba(16,185,129,.15);color:#10b981;}.cb.medium{background:rgba(245,158,11,.15);color:#f59e0b;}.cb.hard{background:rgba(239,68,68,.15);color:#ef4444;}
+.cp{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.05);}.cpf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--a),var(--a2));}
+.nw{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:28px;}
+.ntb{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.tbtn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.tbtn:hover,.tbtn.active{background:rgba(124,58,237,.15);border-color:var(--b2);color:var(--a);}
+.nc h3{font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--a2);margin:18px 0 10px;}
+.nc .f{font-family:'Space Mono',monospace;font-size:13px;background:rgba(124,58,237,.08);border:1px solid var(--b2);border-radius:8px;padding:11px 14px;margin:10px 0;color:var(--a);overflow-x:auto;white-space:pre-wrap;}
+.nc .hl{background:rgba(245,158,11,.07);border-left:3px solid var(--a3);padding:11px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px;}
+.nc table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+.nc th{background:rgba(124,58,237,.1);padding:9px;border:1px solid var(--b);color:var(--a);}.nc td{padding:9px;border:1px solid var(--b);}
+.qw{max-width:700px;margin:0 auto;}.qq{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:26px;margin-bottom:14px;}
+.qn{font-size:11px;color:var(--t3);margin-bottom:9px;font-family:'Space Mono',monospace;}.qt{font-size:1rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.qos{display:flex;flex-direction:column;gap:9px;}
+.qo{padding:12px 15px;border-radius:10px;cursor:pointer;background:var(--g);border:1px solid var(--b);font-size:13px;transition:all .2s;text-align:left;color:var(--t);}
+.qo:hover{border-color:var(--b2);background:rgba(124,58,237,.06);}
+.qo.c{background:rgba(16,185,129,.13);border-color:rgba(16,185,129,.4);color:#10b981;}.qo.w{background:rgba(239,68,68,.13);border-color:rgba(239,68,68,.4);color:#ef4444;}
+.qsub{width:100%;padding:14px;border-radius:11px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:800;font-size:15px;border:none;cursor:pointer;margin-top:6px;}
+.qsub:hover{opacity:.9;transform:translateY(-1px);}
+.gc{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:24px;}
+.gi{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.gi input{flex:1;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--b);color:var(--t);font-family:'Space Mono',monospace;font-size:14px;outline:none;}
+.gi input:focus{border-color:var(--b2);}
+.gib{padding:12px 22px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;}
+.gpb{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.gpb:hover{background:rgba(124,58,237,.1);border-color:var(--b2);color:var(--a);}
+.rml{display:flex;align-items:center;gap:18px;padding:18px;border-radius:13px;background:var(--g);border:1px solid var(--b);margin-bottom:7px;transition:all .3s;}
+.rml:hover{border-color:var(--b2);}
+.rmc{width:46px;height:46px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:#fff;}
+.rmt{font-family:'Syne',sans-serif;font-weight:700;}.rms{font-size:12px;color:var(--t3);margin-top:2px;}
+.rmst{margin-left:auto;padding:4px 11px;border-radius:6px;font-size:11px;font-weight:700;}
+.rmst.done{background:rgba(16,185,129,.15);color:#10b981;}.rmst.progress{background:rgba(245,158,11,.15);color:#f59e0b;}.rmst.todo{background:var(--g2);color:var(--t3);}
+.rmline{width:2px;height:18px;background:linear-gradient(var(--a),var(--a2));margin-left:22px;}
+.aw{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:26px;}
+.ap{width:100%;padding:15px;border-radius:11px;background:var(--bg3);border:1px solid var(--b);color:var(--t);font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:96px;outline:none;}
+.ap:focus{border-color:var(--b2);}
+.aa{display:flex;gap:9px;margin-top:11px;flex-wrap:wrap;}
+.abp{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;}
+.abs{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.abs:hover{background:rgba(124,58,237,.1);border-color:var(--b2);color:var(--a);}
+.ar{margin-top:18px;padding:18px;border-radius:13px;background:rgba(124,58,237,.04);border:1px solid var(--b2);min-height:70px;font-size:14px;line-height:1.8;display:none;}
+.ar.show{display:block;}
+@media(max-width:768px){nav{padding:12px 16px;}#c3d{display:none;}.hero{padding:36px 16px 28px;}.main{padding:20px 16px;}.tabs{display:none;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="bk">← Back</a>
+  <span class="nt">📐 Mathematics</span>
+  <div class="tabs">
+    <button class="tab active" onclick="S('chapters',this)">Chapters</button>
+    <button class="tab" onclick="S('notes',this)">Notes</button>
+    <button class="tab" onclick="S('graph',this)">Graph Plotter</button>
+    <button class="tab" onclick="S('quiz',this)">Quiz</button>
+    <button class="tab" onclick="S('roadmap',this)">Roadmap</button>
+    <button class="tab" onclick="S('ai',this)">AI Tutor</button>
+  </div>
+</nav>
+<div class="hero">
+  <div class="hi">
+    <div>
+      <div class="hicon">📐</div>
+      <h1 class="htitle">Master <span>Mathematics</span></h1>
+      <p class="hdesc">From basic arithmetic to advanced calculus — animated proofs, 3D geometry, interactive graph plotting, NCERT solutions, and AI-powered doubt solving for Classes 1–12.</p>
+      <div class="hstats">
+        <div class="hsi"><div class="n">24</div><div class="l">Chapters</div></div>
+        <div class="hsi"><div class="n">200+</div><div class="l">Lessons</div></div>
+        <div class="hsi"><div class="n">600+</div><div class="l">Practice Qs</div></div>
+        <div class="hsi"><div class="n">3D</div><div class="l">Geometry</div></div>
+      </div>
+    </div>
+    <canvas id="c3d"></canvas>
+  </div>
+</div>
+<div class="main">
+<div class="sec active" id="sec-chapters"><div class="cg" id="cg"></div></div>
+<div class="sec" id="sec-notes">
+  <div class="nw">
+    <div class="ntb">
+      <button class="tbtn active" onclick="showN('algebra',this)">Algebra</button>
+      <button class="tbtn" onclick="showN('geometry',this)">Geometry</button>
+      <button class="tbtn" onclick="showN('trigonometry',this)">Trigonometry</button>
+      <button class="tbtn" onclick="showN('calculus',this)">Calculus</button>
+      <button class="tbtn" onclick="showN('statistics',this)">Statistics</button>
+      <button class="tbtn" onclick="showN('number',this)">Number Theory</button>
+    </div>
+    <div class="nc" id="nc"></div>
+  </div>
+</div>
+<div class="sec" id="sec-graph">
+  <div class="gc">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;margin-bottom:18px;">📊 Interactive Graph Plotter</h2>
+    <div class="gi">
+      <input id="fi" value="Math.sin(x)" placeholder="e.g. Math.sin(x), x*x, Math.tan(x), Math.log(Math.abs(x))"/>
+      <input id="xmn" value="-10" style="max-width:90px;" placeholder="x min"/>
+      <input id="xmx" value="10" style="max-width:90px;" placeholder="x max"/>
+      <button class="gib" onclick="plotG()">Plot</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <button class="gpb" onclick="sf('Math.sin(x)')">sin(x)</button>
+      <button class="gpb" onclick="sf('Math.cos(x)')">cos(x)</button>
+      <button class="gpb" onclick="sf('Math.tan(x)')">tan(x)</button>
+      <button class="gpb" onclick="sf('x*x')">x²</button>
+      <button class="gpb" onclick="sf('x*x*x-3*x')">x³−3x</button>
+      <button class="gpb" onclick="sf('Math.sqrt(Math.abs(x))')">√|x|</button>
+      <button class="gpb" onclick="sf('1/x')">1/x</button>
+      <button class="gpb" onclick="sf('Math.exp(x)')">eˣ</button>
+      <button class="gpb" onclick="sf('Math.log(Math.abs(x))')">ln|x|</button>
+    </div>
+    <div id="gd"></div>
+  </div>
+</div>
+<div class="sec" id="sec-quiz">
+  <div class="qw">
+    <div style="text-align:center;margin-bottom:26px;">
+      <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;">📐 Mathematics Quiz</h2>
+      <p style="color:var(--t2);margin-top:7px;">Select the correct answer.</p>
+    </div>
+    <div id="qqs"></div>
+    <div id="qres" style="display:none;text-align:center;padding:36px;background:var(--g);border:1px solid var(--b);border-radius:18px;margin-top:14px;">
+      <div style="font-size:3rem;margin-bottom:12px;">🏆</div>
+      <div id="qsc" style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+      <button onclick="resetQ()" style="margin-top:18px;padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:800;border:none;cursor:pointer;">Try Again</button>
+    </div>
+  </div>
+</div>
+<div class="sec" id="sec-roadmap">
+  <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;margin-bottom:26px;">📍 Mathematics Learning Roadmap</h2>
+  <div id="rl"></div>
+</div>
+<div class="sec" id="sec-ai">
+  <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;margin-bottom:7px;">🤖 Maths AI Tutor</h2>
+  <p style="color:var(--t2);margin-bottom:22px;">Ask any maths question — get step-by-step solutions, proofs, and worked examples.</p>
+  <div class="aw">
+    <textarea class="ap" id="ap" placeholder="e.g. Solve: 2x² + 5x − 3 = 0&#10;Prove that √2 is irrational&#10;Find the integral of x·sin(x) dx"></textarea>
+    <div class="aa">
+      <button class="abp" onclick="askAI()">🧠 Solve</button>
+      <button class="abs" onclick="sp('Solve quadratic: 3x² − 10x + 3 = 0 step by step')">Quadratic</button>
+      <button class="abs" onclick="sp('Give all important formulas for Class 10 Maths NCERT')">All Formulas</button>
+      <button class="abs" onclick="sp('Create 5 practice problems on Trigonometry with solutions')">Practice</button>
+      <button class="abs" onclick="sp('Explain integration by parts with 3 examples')">Calculus</button>
+    </div>
+    <div class="ar" id="ar"></div>
+  </div>
+</div>
+</div>
+<script>
+function S(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');if(btn)btn.classList.add('active');}
+// 3D GEOMETRY WIREFRAME
+(function(){
+  const cv=document.getElementById('c3d');if(!cv)return;
+  const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.setSize(260,260);
+  const sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(60,1,.1,100);cm.position.set(3,3,3);cm.lookAt(0,0,0);
+  const shapes=[
+    new THREE.Mesh(new THREE.IcosahedronGeometry(1.2,1),new THREE.MeshBasicMaterial({color:0x7c3aed,wireframe:true,transparent:true,opacity:.8})),
+    new THREE.Mesh(new THREE.OctahedronGeometry(.8),new THREE.MeshBasicMaterial({color:0x06b6d4,wireframe:true,transparent:true,opacity:.5})),
+  ];
+  shapes.forEach(s=>sc.add(s));
+  // Axes
+  [[2,0,0,0xff4444],[0,2,0,0x44dd44],[0,0,2,0x4444ff]].forEach(([x,y,z,c])=>{
+    const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(x,y,z)]);
+    sc.add(new THREE.Line(g,new THREE.LineBasicMaterial({color:c,transparent:true,opacity:.4})));
+  });
+  let t=0;function an(){requestAnimationFrame(an);t+=.01;shapes[0].rotation.y+=.008;shapes[0].rotation.x+=.004;shapes[1].rotation.y-=.012;r.render(sc,cm);}an();
+})();
+// CHAPTERS
+const CH=[
+  {n:'Ch 01',t:'Number Systems',d:'Real numbers, irrational numbers, decimal expansions.',l:'easy',p:90},
+  {n:'Ch 02',t:'Polynomials',d:'Zeros, relationship between zeros and coefficients.',l:'easy',p:85},
+  {n:'Ch 03',t:'Linear Equations',d:'Two-variable equations, graphical & algebraic methods.',l:'easy',p:88},
+  {n:'Ch 04',t:'Quadratic Equations',d:'Factorisation, completing square, quadratic formula.',l:'medium',p:72},
+  {n:'Ch 05',t:'Arithmetic Progressions',d:'nth term, sum of n terms, real-world applications.',l:'medium',p:68},
+  {n:'Ch 06',t:'Triangles & Similarity',d:'BPT, similarity criteria, Pythagoras theorem proofs.',l:'medium',p:62},
+  {n:'Ch 07',t:'Coordinate Geometry',d:'Distance, midpoint, section formula, area of triangle.',l:'medium',p:76},
+  {n:'Ch 08',t:'Trigonometry',d:'Ratios, identities, complementary angles, heights & distances.',l:'medium',p:58},
+  {n:'Ch 09',t:'Circles',d:'Tangent properties, number of tangents, angle theorems.',l:'medium',p:52},
+  {n:'Ch 10',t:'Areas Related to Circles',d:'Sector, segment, combination of plane figures.',l:'medium',p:66},
+  {n:'Ch 11',t:'Surface Areas & Volumes',d:'Cuboid, sphere, cylinder, cone, frustum.',l:'hard',p:44},
+  {n:'Ch 12',t:'Statistics',d:'Mean, median, mode, cumulative frequency, ogive.',l:'medium',p:70},
+  {n:'Ch 13',t:'Probability',d:'Classical, experimental probability, compound events.',l:'easy',p:78},
+  {n:'Ch 14',t:'Sets & Relations',d:'Types of sets, Venn diagrams, relations, functions.',l:'medium',p:60},
+  {n:'Ch 15',t:'Matrices & Determinants',d:'Matrix operations, determinant, inverse, Cramer's rule.',l:'hard',p:40},
+  {n:'Ch 16',t:'Limits & Continuity',d:'Concept of limit, standard limits, continuity at a point.',l:'hard',p:36},
+  {n:'Ch 17',t:'Differentiation',d:'Derivatives, product/quotient/chain rules, implicit.',l:'hard',p:32},
+  {n:'Ch 18',t:'Applications of Derivatives',d:'Tangent, normal, increasing/decreasing, maxima/minima.',l:'hard',p:28},
+  {n:'Ch 19',t:'Integration',d:'Indefinite & definite integrals, by parts, substitution.',l:'hard',p:24},
+  {n:'Ch 20',t:'Differential Equations',d:'Order, degree, variable separable, linear DE.',l:'hard',p:18},
+  {n:'Ch 21',t:'Vectors & 3D Geometry',d:'Dot/cross product, direction cosines, planes, lines.',l:'hard',p:22},
+  {n:'Ch 22',t:'Linear Programming',d:'Feasible region, corner points, objective function.',l:'medium',p:50},
+  {n:'Ch 23',t:'Probability (Advanced)',d:'Bayes theorem, conditional probability, distributions.',l:'hard',p:30},
+  {n:'Ch 24',t:'Complex Numbers',d:'Argand plane, modulus, argument, De Moivre theorem.',l:'hard',p:26},
+];
+const cg=document.getElementById('cg');
+CH.forEach(c=>{cg.innerHTML+=`<div class="cc"><div class="cn">${c.n}</div><div class="ct">${c.t}</div><div class="cd">${c.d}</div><div class="cm"><span class="cb ${c.l}">${c.l}</span><div class="cp"><div class="cpf" style="width:${c.p}%"></div></div><span style="font-size:10px;color:var(--t3)">${c.p}%</span></div></div>`;});
+// NOTES
+const N={
+algebra:`<h3>📌 Algebra — Core Formulas</h3>
+<div class="f">Quadratic: ax² + bx + c = 0
+  x = (−b ± √(b²−4ac)) / 2a
+  Discriminant D = b²−4ac
+  D > 0 → 2 real roots | D = 0 → equal roots | D < 0 → no real roots</div>
+<div class="f">Identities:
+  (a+b)² = a² + 2ab + b²
+  (a−b)² = a² − 2ab + b²
+  (a+b)(a−b) = a² − b²
+  (a+b)³ = a³ + 3a²b + 3ab² + b³
+  a³+b³ = (a+b)(a²−ab+b²)
+  a³−b³ = (a−b)(a²+ab+b²)</div>
+<div class="f">AP Formulas:
+  nth term: aₙ = a + (n−1)d
+  Sum: Sₙ = n/2·[2a + (n−1)d] = n/2·(a + aₙ)</div>
+<div class="hl">💡 If roots of ax²+bx+c=0 are α,β: Sum α+β = −b/a | Product αβ = c/a</div>`,
+geometry:`<h3>📐 Coordinate Geometry</h3>
+<div class="f">Distance = √[(x₂−x₁)² + (y₂−y₁)²]
+Midpoint M = ((x₁+x₂)/2 , (y₁+y₂)/2)
+Section (m:n) = ((mx₂+nx₁)/(m+n) , (my₂+ny₁)/(m+n))
+Area △ = ½|x₁(y₂−y₃)+x₂(y₃−y₁)+x₃(y₁−y₂)|</div>
+<div class="f">Lines:
+  Slope m = (y₂−y₁)/(x₂−x₁) = tan θ
+  y = mx + c  (slope-intercept)
+  Parallel: m₁ = m₂ | Perpendicular: m₁·m₂ = −1</div>
+<div class="f">3D Geometry:
+  Distance = √[(x₂−x₁)²+(y₂−y₁)²+(z₂−z₁)²]
+  Direction cosines: l²+m²+n² = 1</div>
+<div class="hl">💡 Centroid of triangle = ((x₁+x₂+x₃)/3 , (y₁+y₂+y₃)/3)</div>`,
+trigonometry:`<h3>📐 Trigonometry</h3>
+<div class="f">sin θ = P/H | cos θ = B/H | tan θ = P/B
+cosec = 1/sin | sec = 1/cos | cot = 1/tan</div>
+<div class="f">Standard Values:
+  θ:     0°    30°    45°    60°    90°
+  sin:   0    1/2   1/√2   √3/2    1
+  cos:   1   √3/2  1/√2   1/2     0
+  tan:   0   1/√3    1     √3      ∞</div>
+<div class="f">Identities:
+  sin²θ + cos²θ = 1
+  1 + tan²θ = sec²θ
+  1 + cot²θ = cosec²θ
+  sin(A±B) = sinA cosB ± cosA sinB
+  cos(A±B) = cosA cosB ∓ sinA sinB</div>
+<div class="hl">💡 ASTC rule (All, Sin, Tan, Cos) — signs of trig ratios in 4 quadrants.</div>`,
+calculus:`<h3>∫ Calculus</h3>
+<div class="f">Derivatives:
+  d/dx(xⁿ) = nxⁿ⁻¹    d/dx(sin x) = cos x
+  d/dx(cos x) = −sin x  d/dx(eˣ) = eˣ
+  d/dx(ln x) = 1/x      d/dx(aˣ) = aˣ ln a
+  Product: (uv)' = u'v + uv'
+  Chain:   d/dx[f(g(x))] = f'(g(x))·g'(x)</div>
+<div class="f">Integrals:
+  ∫xⁿ dx = xⁿ⁺¹/(n+1) + C    (n ≠ −1)
+  ∫sin x dx = −cos x + C
+  ∫cos x dx = sin x + C
+  ∫eˣ dx = eˣ + C
+  ∫1/x dx = ln|x| + C</div>
+<div class="f">Integration by Parts:
+  ∫u·v dx = u·∫v dx − ∫(u'·∫v dx) dx
+  ILATE: Inverse trig, Log, Algebraic, Trig, Exponential</div>`,
+statistics:`<h3>📊 Statistics</h3>
+<div class="f">Mean = Σfᵢxᵢ / Σfᵢ  (for grouped data)
+Median = l + [(n/2 − cf)/f] × h
+Mode = l + [(f₁−f₀)/(2f₁−f₀−f₂)] × h</div>
+<div class="f">Empirical relation: Mode ≈ 3·Median − 2·Mean
+Standard Deviation σ = √[Σ(xᵢ−x̄)²/n]
+Variance = σ²</div>
+<div class="f">Probability:
+  P(A) = n(A)/n(S)
+  P(A∪B) = P(A)+P(B)−P(A∩B)
+  P(A|B) = P(A∩B)/P(B)  (Conditional)
+  Bayes: P(A|B) = P(B|A)P(A)/P(B)</div>`,
+number:`<h3>🔢 Number Theory</h3>
+<div class="f">Euclid's Division Lemma: a = bq + r  (0 ≤ r < b)
+HCF × LCM = Product of two numbers
+Fundamental theorem: every integer > 1 is a unique product of primes</div>
+<div class="f">Divisibility Rules:
+  2: last digit even | 3: sum of digits ÷3 | 4: last 2 digits ÷4
+  5: ends 0 or 5 | 9: sum ÷9 | 11: alternating sum ÷11</div>
+<div class="hl">💡 Proof √2 is irrational: Assume √2 = p/q (lowest terms) → 2 = p²/q² → p² even → p even → q² even → q even. Contradiction!</div>`
+};
+function showN(k,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('nc').innerHTML=N[k]||'Coming soon.';}
+showN('algebra',document.querySelector('.tbtn'));
+// GRAPH PLOTTER
+function sf(f){document.getElementById('fi').value=f;}
+function plotG(){
+  const fn=document.getElementById('fi').value;
+  const xmin=parseFloat(document.getElementById('xmn').value)||-10;
+  const xmax=parseFloat(document.getElementById('xmx').value)||10;
+  const xs=[],ys=[];
+  for(let x=xmin;x<=xmax;x+=(xmax-xmin)/800){
+    try{const y=eval(fn.replace(/\bx\b/g,'('+x+')'));if(isFinite(y)&&Math.abs(y)<1e6){xs.push(x);ys.push(y);}}catch(e){}
+  }
+  Plotly.newPlot('gd',[{x:xs,y:ys,type:'scatter',mode:'lines',line:{color:'#7c3aed',width:2.5},name:fn}],{
+    paper_bgcolor:'#0d0d20',plot_bgcolor:'#0d0d20',font:{color:'#94a3b8',family:'DM Sans'},
+    xaxis:{gridcolor:'rgba(255,255,255,.05)',zerolinecolor:'rgba(255,255,255,.2)',title:'x'},
+    yaxis:{gridcolor:'rgba(255,255,255,.05)',zerolinecolor:'rgba(255,255,255,.2)',title:'y'},
+    margin:{l:50,r:20,t:20,b:50}
+  },{responsive:true,displayModeBar:false});
+}
+plotG();
+// QUIZ
+const QD=[
+  {q:'The discriminant of x² − 5x + 6 = 0 is:',o:['1','2','3','4'],a:0,e:'D = b²−4ac = 25−24 = 1'},
+  {q:'Sum of zeros of polynomial x² − 3x + 2:',o:['2','3','−3','−2'],a:1,e:'Sum = −b/a = 3/1 = 3'},
+  {q:'sin 30° + cos 60° = :',o:['0.5','1','1.5','√2'],a:1,e:'0.5 + 0.5 = 1'},
+  {q:'Range of projectile at 45° with speed u:',o:['u²/g','u²/2g','2u²/g','u/g'],a:0,e:'R = u²sin2θ/g; at 45°, sin90°=1, so R = u²/g'},
+  {q:'Median formula for grouped data uses:',o:['AM','Mode','l + [(n/2−cf)/f]×h','Σfx/Σf'],a:2,e:'Median = l + [(n/2−cf)/f]×h where l=lower boundary, cf=cumulative freq.'},
+  {q:'d/dx(sin x) = :',o:['cos x','−cos x','−sin x','sec²x'],a:0,e:'Derivative of sin x is cos x. (Standard result)'},
+];
+let uA={};
+function renderQ(){const c=document.getElementById('qqs');c.innerHTML='';uA={};QD.forEach((q,i)=>{c.innerHTML+=`<div class="qq"><div class="qn">Q${i+1} of ${QD.length}</div><div class="qt">${q.q}</div><div class="qos">${q.o.map((o,j)=>`<button class="qo" id="qo${i}${j}" onclick="sA(${i},${j},this)">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><div id="qe${i}" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(16,185,129,.1);color:#10b981;font-size:13px;">💡 ${q.e}</div></div>`;});c.innerHTML+=`<button class="qsub" onclick="chkQ()">✓ Submit & Check</button>`;}
+function sA(qi,oi,btn){document.querySelectorAll(`[id^="qo${qi}"]`).forEach(b=>b.style.outline='');btn.style.outline='2px solid var(--a2)';uA[qi]=oi;}
+function chkQ(){let sc=0;QD.forEach((q,i)=>{const ch=uA[i];if(ch===undefined)return;document.querySelectorAll(`[id^="qo${i}"]`).forEach((b,j)=>{if(j===q.a)b.classList.add('c');else if(j===ch&&ch!==q.a)b.classList.add('w');});document.getElementById('qe'+i).style.display='block';if(ch===q.a)sc++;});document.getElementById('qres').style.display='block';document.getElementById('qsc').textContent=sc+' / '+QD.length+' — '+Math.round(sc/QD.length*100)+'%';document.getElementById('qres').scrollIntoView({behavior:'smooth'});}
+function resetQ(){document.getElementById('qres').style.display='none';renderQ();}renderQ();
+// ROADMAP
+const RM=[
+  {t:'Number Systems & Basic Arithmetic',s:'Integers, fractions, real numbers',st:'done'},
+  {t:'Algebra Fundamentals',s:'Polynomials, equations, identities',st:'done'},
+  {t:'Geometry & Mensuration',s:'Shapes, angles, area, volume',st:'progress'},
+  {t:'Coordinate Geometry',s:'2D plane, lines, distance, section formula',st:'progress'},
+  {t:'Trigonometry',s:'Ratios, identities, heights & distances',st:'todo'},
+  {t:'Statistics & Probability',s:'Data handling, mean/median/mode, Bayes',st:'todo'},
+  {t:'Differential Calculus',s:'Limits, derivatives, applications',st:'todo'},
+  {t:'Integral Calculus',s:'Indefinite/definite integration, area',st:'todo'},
+  {t:'Matrices, Vectors & 3D Geometry',s:'Linear algebra, dot/cross product',st:'todo'},
+];
+const rl=document.getElementById('rl');
+RM.forEach((r,i)=>{rl.innerHTML+=`<div class="rml"><div class="rmc">${i+1}</div><div style="flex:1"><div class="rmt">${r.t}</div><div class="rms">${r.s}</div></div><div class="rmst ${r.st}">${r.st==='done'?'✓ Done':r.st==='progress'?'⟳ Active':'○ Todo'}</div></div>${i<RM.length-1?'<div class="rmline"></div>':''}`; });
+// AI
+function sp(p){document.getElementById('ap').value=p;}
+async function askAI(){
+  const q=document.getElementById('ap').value.trim();if(!q)return;
+  const r=document.getElementById('ar');r.classList.add('show');r.innerHTML='<span style="color:var(--t3)">🧠 Solving...</span>';
+  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'You are an expert Mathematics teacher (NCERT curriculum, Classes 1–12, JEE level). Give step-by-step solutions. Show all working clearly. Highlight final answers. Use proper mathematical notation.',messages:[{role:'user',content:q}]})});const d=await res.json();r.innerHTML=(d.content?.map(c=>c.text||'').join('')||'No response.').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');}catch(e){r.innerHTML='⚠️ Connection error.';}
+}
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+</script>
+</body>
+</html>

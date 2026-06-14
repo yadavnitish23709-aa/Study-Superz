@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Science | Study Superz</title>
+<link rel="manifest" href="../manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#10b981;--a2:#06b6d4;--a3:#f59e0b;--a4:#7c3aed;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--b:rgba(255,255,255,.08);--b2:rgba(16,185,129,.35);}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;padding:14px 32px;background:rgba(6,6,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;}
+.bk{padding:8px 16px;border-radius:8px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;text-decoration:none;}.bk:hover{background:var(--g2);}
+.nt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-right:auto;}
+.tabs{display:flex;gap:3px;background:var(--g);border:1px solid var(--b);border-radius:10px;padding:4px;overflow-x:auto;}
+.tab{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);background:transparent;border:none;transition:all .2s;white-space:nowrap;}
+.tab.active{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;}
+.hero{padding:56px 32px 40px;background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(6,182,212,.06));border-bottom:1px solid var(--b);}
+.hi{max-width:1100px;margin:0 auto;}.hicon{font-size:5rem;margin-bottom:12px;}
+.htitle{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3rem);margin-bottom:12px;}
+.htitle span{background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hdesc{color:var(--t2);font-size:1rem;line-height:1.7;max-width:600px;margin-bottom:20px;}
+.hstats{display:flex;gap:28px;flex-wrap:wrap;}.hsi .n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--a);}.hsi .l{font-size:12px;color:var(--t3);}
+.main{max-width:1100px;margin:0 auto;padding:36px 32px;}
+.sec{display:none;}.sec.active{display:block;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.cc{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:22px;cursor:pointer;transition:all .3s;}
+.cc:hover{border-color:var(--b2);transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.cn{font-family:'Space Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px;}
+.ct{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:7px;}.cd{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:14px;}
+.cm{display:flex;gap:10px;align-items:center;}.cb{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;}
+.cb.easy{background:rgba(16,185,129,.15);color:#10b981;}.cb.medium{background:rgba(245,158,11,.15);color:#f59e0b;}.cb.hard{background:rgba(239,68,68,.15);color:#ef4444;}
+.cp{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.05);}.cpf{height:100%;border-radius:2px;background:linear-gradient(90deg,#10b981,#06b6d4);}
+.nw{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:28px;}
+.ntb{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.tbtn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.tbtn:hover,.tbtn.active{background:rgba(16,185,129,.15);border-color:var(--b2);color:var(--a);}
+.nc h3{font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--a2);margin:18px 0 10px;}
+.nc .f{font-family:'Space Mono',monospace;font-size:13px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:11px 14px;margin:10px 0;color:var(--a);overflow-x:auto;white-space:pre-wrap;}
+.nc .hl{background:rgba(245,158,11,.07);border-left:3px solid #f59e0b;padding:11px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px;}
+.nc table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}.nc th{background:rgba(16,185,129,.1);padding:9px;border:1px solid var(--b);color:var(--a);font-weight:700;}.nc td{padding:9px;border:1px solid var(--b);}
+.qw{max-width:700px;margin:0 auto;}.qq{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:26px;margin-bottom:14px;}
+.qn{font-size:11px;color:var(--t3);margin-bottom:9px;font-family:'Space Mono',monospace;}.qt{font-size:1rem;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.qos{display:flex;flex-direction:column;gap:9px;}
+.qo{padding:12px 15px;border-radius:10px;cursor:pointer;background:var(--g);border:1px solid var(--b);font-size:13px;transition:all .2s;text-align:left;color:var(--t);}
+.qo:hover{border-color:var(--b2);}
+.qo.c{background:rgba(16,185,129,.13);border-color:rgba(16,185,129,.4);color:#10b981;}.qo.w{background:rgba(239,68,68,.13);border-color:rgba(239,68,68,.4);color:#ef4444;}
+.qsub{width:100%;padding:14px;border-radius:11px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-weight:800;font-size:15px;border:none;cursor:pointer;margin-top:6px;}
+.rml{display:flex;align-items:center;gap:18px;padding:18px;border-radius:13px;background:var(--g);border:1px solid var(--b);margin-bottom:7px;transition:all .3s;}.rml:hover{border-color:var(--b2);}
+.rmc{width:46px;height:46px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'Syne',sans-serif;color:#fff;}
+.rmt{font-family:'Syne',sans-serif;font-weight:700;}.rms{font-size:12px;color:var(--t3);margin-top:2px;}
+.rmst{margin-left:auto;padding:4px 11px;border-radius:6px;font-size:11px;font-weight:700;}
+.rmst.done{background:rgba(16,185,129,.15);color:#10b981;}.rmst.progress{background:rgba(245,158,11,.15);color:#f59e0b;}.rmst.todo{background:var(--g2);color:var(--t3);}
+.rmline{width:2px;height:18px;background:linear-gradient(#10b981,#06b6d4);margin-left:22px;}
+.aw{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:26px;}
+.ap{width:100%;padding:15px;border-radius:11px;background:var(--bg3);border:1px solid var(--b);color:var(--t);font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;min-height:96px;outline:none;}
+.ap:focus{border-color:var(--b2);}
+.aa{display:flex;gap:9px;margin-top:11px;flex-wrap:wrap;}
+.abp{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;}
+.abs{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--g2);border:1px solid var(--b);color:var(--t2);transition:all .2s;}
+.abs:hover{background:rgba(16,185,129,.1);border-color:var(--b2);color:var(--a);}
+.ar{margin-top:18px;padding:18px;border-radius:13px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.2);min-height:70px;font-size:14px;line-height:1.8;display:none;}.ar.show{display:block;}
+@media(max-width:768px){nav{padding:12px 16px;}.hero{padding:36px 16px 28px;}.main{padding:20px 16px;}.tabs{display:none;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="bk">← Back</a>
+  <span class="nt">🔬 Science</span>
+  <div class="tabs">
+    <button class="tab active" onclick="S('chapters',this)">Chapters</button>
+    <button class="tab" onclick="S('notes',this)">Notes</button>
+    <button class="tab" onclick="S('quiz',this)">Quiz</button>
+    <button class="tab" onclick="S('roadmap',this)">Roadmap</button>
+    <button class="tab" onclick="S('ai',this)">AI Tutor</button>
+  </div>
+</nav>
+<div class="hero"><div class="hi">
+  <div class="hicon">🔬</div>
+  <h1 class="htitle">Master <span>Science</span></h1>
+  <p class="hdesc">Physics, Chemistry, Biology combined — virtual experiments, 3D models, animated concepts, NCERT solutions for Classes 6–10.</p>
+  <div class="hstats">
+    <div class="hsi"><div class="n">18</div><div class="l">Chapters</div></div>
+    <div class="hsi"><div class="n">120+</div><div class="l">Lessons</div></div>
+    <div class="hsi"><div class="n">400+</div><div class="l">Questions</div></div>
+    <div class="hsi"><div class="n">Virtual</div><div class="l">Lab</div></div>
+  </div>
+</div></div>
+<div class="main">
+  <div class="sec active" id="sec-chapters"><div class="cg" id="cg"></div></div>
+  <div class="sec" id="sec-notes">
+    <div class="nw">
+      <div class="ntb">
+        <button class="tbtn active" onclick="showN('physics',this)">Physics</button>
+        <button class="tbtn" onclick="showN('chemistry',this)">Chemistry</button>
+        <button class="tbtn" onclick="showN('biology',this)">Biology</button>
+        <button class="tbtn" onclick="showN('environment',this)">Environment</button>
+      </div>
+      <div class="nc" id="nc"></div>
+    </div>
+  </div>
+  <div class="sec" id="sec-quiz">
+    <div class="qw">
+      <div style="text-align:center;margin-bottom:26px;"><h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;">🔬 Science Quiz</h2><p style="color:var(--t2);margin-top:7px;">Test your science knowledge.</p></div>
+      <div id="qqs"></div>
+      <div id="qres" style="display:none;text-align:center;padding:36px;background:var(--g);border:1px solid var(--b);border-radius:18px;margin-top:14px;">
+        <div style="font-size:3rem;margin-bottom:12px;">🔬</div>
+        <div id="qsc" style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:linear-gradient(135deg,#10b981,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+        <button onclick="resetQ()" style="margin-top:18px;padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-weight:800;border:none;cursor:pointer;">Try Again</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec" id="sec-roadmap">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;margin-bottom:26px;">📍 Science Learning Roadmap</h2>
+    <div id="rl"></div>
+  </div>
+  <div class="sec" id="sec-ai">
+    <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;margin-bottom:7px;">🤖 Science AI Tutor</h2>
+    <p style="color:var(--t2);margin-bottom:22px;">Ask any Science question — Physics, Chemistry, or Biology.</p>
+    <div class="aw">
+      <textarea class="ap" id="ap" placeholder="e.g. Explain photosynthesis step by step&#10;Why does ice float on water?&#10;What is the difference between plant and animal cells?"></textarea>
+      <div class="aa">
+        <button class="abp" onclick="askAI()">🧠 Get Answer</button>
+        <button class="abs" onclick="sp('Explain the water cycle with diagram description')">Water Cycle</button>
+        <button class="abs" onclick="sp('Explain Newton 3 laws of motion with examples')">Newton Laws</button>
+        <button class="abs" onclick="sp('Difference between photosynthesis and respiration')">Photo vs Resp</button>
+        <button class="abs" onclick="sp('Give 5 important NCERT Science questions for Class 10 board exam')">Board Qs</button>
+      </div>
+      <div class="ar" id="ar"></div>
+    </div>
+  </div>
+</div>
+<script>
+const{createClient}=supabase;
+const SB=createClient('https://mlpsqojltzkrsykhcico.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1scHNxb2psdHprcnN5a2hjaWNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzU5MTUsImV4cCI6MjA5NjMxMTkxNX0.w2Xfo_x7MpFhhIIzW2uh0o-XdZkZNIJvSEEWEzD7cJ0');
+function S(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');if(btn)btn.classList.add('active');}
+const CH=[
+  {n:'Ch 01',t:'Matter in Our Surroundings',d:'States of matter, evaporation, latent heat.',l:'easy',p:90},
+  {n:'Ch 02',t:'Is Matter Around Us Pure?',d:'Mixtures, solutions, colloids, separation methods.',l:'easy',p:85},
+  {n:'Ch 03',t:'Atoms and Molecules',d:'Laws of chemical combination, Dalton\'s atomic theory.',l:'medium',p:78},
+  {n:'Ch 04',t:'Structure of Atom',d:'Thomson, Rutherford, Bohr models, valency.',l:'medium',p:74},
+  {n:'Ch 05',t:'Cell: Fundamental Unit',d:'Cell theory, plant vs animal cell, organelles.',l:'medium',p:82},
+  {n:'Ch 06',t:'Tissues',d:'Plant tissues (meristematic, permanent), animal tissues.',l:'medium',p:70},
+  {n:'Ch 07',t:'Motion',d:'Distance, displacement, speed, velocity, acceleration.',l:'easy',p:88},
+  {n:'Ch 08',t:'Force and Laws of Motion',d:'Newton\'s 3 laws, momentum, inertia.',l:'medium',p:80},
+  {n:'Ch 09',t:'Gravitation',d:'Universal law, free fall, mass, weight, buoyancy.',l:'medium',p:76},
+  {n:'Ch 10',t:'Work and Energy',d:'Work-energy theorem, power, conservation of energy.',l:'medium',p:72},
+  {n:'Ch 11',t:'Sound',d:'Production, propagation, reflection, characteristics.',l:'easy',p:84},
+  {n:'Ch 12',t:'Chemical Reactions',d:'Types of reactions, balancing equations, oxidation.',l:'medium',p:75},
+  {n:'Ch 13',t:'Acids, Bases and Salts',d:'Properties, indicators, pH scale, salt preparation.',l:'medium',p:78},
+  {n:'Ch 14',t:'Metals and Non-metals',d:'Physical/chemical properties, reactivity series.',l:'medium',p:68},
+  {n:'Ch 15',t:'Life Processes',d:'Nutrition, respiration, transportation, excretion.',l:'hard',p:62},
+  {n:'Ch 16',t:'Control and Coordination',d:'Nervous system, hormones, reflex action.',l:'hard',p:55},
+  {n:'Ch 17',t:'Heredity and Evolution',d:'Mendel\'s laws, natural selection, speciation.',l:'hard',p:48},
+  {n:'Ch 18',t:'Light and Electricity',d:'Reflection, refraction, electric circuits, Ohm\'s law.',l:'medium',p:70},
+];
+const cg=document.getElementById('cg');
+CH.forEach(c=>{cg.innerHTML+=`<div class="cc"><div class="cn">${c.n}</div><div class="ct">${c.t}</div><div class="cd">${c.d}</div><div class="cm"><span class="cb ${c.l}">${c.l}</span><div class="cp"><div class="cpf" style="width:${c.p}%"></div></div><span style="font-size:10px;color:var(--t3)">${c.p}%</span></div></div>`;});
+const NOTES={
+physics:`<h3>⚡ Physics — Key Formulas</h3>
+<div class="f">Motion:  v = u + at  |  s = ut + ½at²  |  v² = u² + 2as
+Newton's Laws:  F = ma  |  Impulse = FΔt = Δp
+Work:  W = Fs·cosθ  |  KE = ½mv²  |  PE = mgh
+Power:  P = W/t  |  Efficiency = (useful output/total input)×100</div>
+<div class="f">Gravitation:  F = Gm₁m₂/r²  (G = 6.67×10⁻¹¹ N·m²/kg²)
+g = 9.8 m/s² on Earth surface
+Weight W = mg  |  Free fall: v = gt, s = ½gt²</div>
+<div class="hl">💡 Sound: Speed in air = 340 m/s | Speed in water > Speed in air | Cannot travel in vacuum.</div>`,
+chemistry:`<h3>⚗️ Chemistry Notes</h3>
+<div class="f">Chemical Reaction Types:
+  Combination:  A + B → AB
+  Decomposition: AB → A + B
+  Displacement: A + BC → AC + B
+  Double Disp: AB + CD → AD + CB
+  Redox: simultaneous oxidation + reduction</div>
+<div class="f">pH Scale: 0–6 = Acid | 7 = Neutral | 8–14 = Base
+Strong acids: HCl, H₂SO₄, HNO₃
+Strong bases: NaOH, KOH, Ca(OH)₂
+Indicators: Litmus (red→acid, blue→base) | Universal indicator</div>
+<div class="hl">💡 Reactivity Series: K>Na>Ca>Mg>Al>Zn>Fe>Pb>H>Cu>Ag>Au — more reactive metals displace less reactive from salts.</div>`,
+biology:`<h3>🧬 Biology Notes</h3>
+<table><tr><th>Process</th><th>Where</th><th>What happens</th></tr>
+<tr><td>Photosynthesis</td><td>Chloroplast</td><td>6CO₂+6H₂O+light → C₆H₁₂O₆+6O₂</td></tr>
+<tr><td>Respiration</td><td>Mitochondria</td><td>C₆H₁₂O₆+6O₂ → 6CO₂+6H₂O+ATP</td></tr>
+<tr><td>Excretion</td><td>Kidney</td><td>Removes urea, excess salts via urine</td></tr></table>
+<div class="hl">💡 Cell Organelles: Nucleus=control centre | Mitochondria=energy | Ribosomes=protein synthesis | Vacuole=storage | Cell wall (plants only)</div>`,
+environment:`<h3>🌿 Environment</h3>
+<div class="f">Food Chain: Producer → Primary Consumer → Secondary → Tertiary
+Food Web: Multiple interconnected food chains
+Trophic Levels: Only 10% energy transferred to next level (10% rule)
+Biodiversity: Variety of life. Threatened by habitat loss, pollution, overexploitation</div>
+<div class="hl">💡 Greenhouse gases: CO₂, CH₄, N₂O, H₂O vapour — trap heat causing global warming.</div>
+<div class="f">Ozone Layer: O₃ in stratosphere absorbs UV-B radiation. Depleted by CFCs (chlorofluorocarbons).</div>`
+};
+function showN(k,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('nc').innerHTML=NOTES[k]||'Coming soon.';}
+showN('physics',document.querySelector('.tbtn'));
+const QD=[
+  {q:'The formula for kinetic energy is:',o:['mgh','½mv²','Fs·cosθ','mv'],a:1,e:'KE = ½mv² (half × mass × velocity squared)'},
+  {q:'Photosynthesis produces:',o:['CO₂ and water','Glucose and oxygen','ATP only','Glucose only'],a:1,e:'6CO₂+6H₂O+light → C₆H₁₂O₆+6O₂ (glucose and oxygen)'},
+  {q:'pH of pure water at 25°C:',o:['0','6','7','14'],a:2,e:'Pure water is neutral with pH = 7 at 25°C.'},
+  {q:'Newton\'s 1st Law is also called:',o:['Law of acceleration','Law of action-reaction','Law of inertia','Law of gravitation'],a:2,e:'Newton\'s 1st Law = Law of Inertia — objects resist change in motion.'},
+  {q:'The powerhouse of the cell is:',o:['Nucleus','Ribosome','Mitochondria','Vacuole'],a:2,e:'Mitochondria produces ATP via cellular respiration.'},
+];
+let uA={};
+function renderQ(){const c=document.getElementById('qqs');c.innerHTML='';uA={};QD.forEach((q,i)=>{c.innerHTML+=`<div class="qq"><div class="qn">Q${i+1} of ${QD.length}</div><div class="qt">${q.q}</div><div class="qos">${q.o.map((o,j)=>`<button class="qo" id="qo${i}${j}" onclick="sA(${i},${j},this)">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}</div><div id="qe${i}" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;background:rgba(16,185,129,.1);color:#10b981;font-size:13px;">💡 ${q.e}</div></div>`;});c.innerHTML+=`<button class="qsub" onclick="chkQ()">✓ Submit & Check</button>`;}
+function sA(qi,oi,btn){document.querySelectorAll(`[id^="qo${qi}"]`).forEach(b=>b.style.outline='');btn.style.outline='2px solid #06b6d4';uA[qi]=oi;}
+function chkQ(){let sc=0;QD.forEach((q,i)=>{const ch=uA[i];if(ch===undefined)return;document.querySelectorAll(`[id^="qo${i}"]`).forEach((b,j)=>{if(j===q.a)b.classList.add('c');else if(j===ch&&ch!==q.a)b.classList.add('w');});document.getElementById('qe'+i).style.display='block';if(ch===q.a)sc++;});document.getElementById('qres').style.display='block';document.getElementById('qsc').textContent=sc+' / '+QD.length+' — '+Math.round(sc/QD.length*100)+'%';document.getElementById('qres').scrollIntoView({behavior:'smooth'});}
+function resetQ(){document.getElementById('qres').style.display='none';renderQ();}
+renderQ();
+const RM=[{t:'Matter & Physical Science',s:'States, pure substances, atoms, molecules',st:'done'},{t:'Cell Biology & Tissues',s:'Cell structure, plant/animal cells, tissues',st:'done'},{t:'Motion & Forces',s:'Newton\'s laws, velocity, acceleration',st:'progress'},{t:'Energy & Work',s:'Kinetic, potential, conservation, power',st:'progress'},{t:'Chemical Reactions',s:'Types, balancing, acids/bases, metals',st:'todo'},{t:'Life Processes',s:'Nutrition, respiration, circulation',st:'todo'},{t:'Heredity & Environment',s:'Genetics, evolution, ecology',st:'todo'}];
+const rl=document.getElementById('rl');
+RM.forEach((r,i)=>{rl.innerHTML+=`<div class="rml"><div class="rmc">${i+1}</div><div style="flex:1"><div class="rmt">${r.t}</div><div class="rms">${r.s}</div></div><div class="rmst ${r.st}">${r.st==='done'?'✓ Done':r.st==='progress'?'⟳ Active':'○ Todo'}</div></div>${i<RM.length-1?'<div class="rmline"></div>':''}`;});
+function sp(p){document.getElementById('ap').value=p;}
+async function askAI(){const q=document.getElementById('ap').value.trim();if(!q)return;const r=document.getElementById('ar');r.classList.add('show');r.innerHTML='<span style="color:var(--t3)">🧠 Thinking...</span>';try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'You are an expert Science teacher for Indian students (NCERT Classes 6–10). Give clear, detailed answers with examples, diagrams described in text, and key points. Be engaging and educational.',messages:[{role:'user',content:q}]})});const d=await res.json();r.innerHTML=(d.content?.map(c=>c.text||'').join('')||'No response.').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');}catch(e){r.innerHTML='⚠️ Connection error.';}}
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+</script>
+</body>
+</html>
