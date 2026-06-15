@@ -1,0 +1,31 @@
+{
+  "name": "Study Superz",
+  "short_name": "StudySuperz",
+  "description": "India's Most Advanced AI-Powered Learning Platform — Nursery to Class 12. Built by Nitish Yadav.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#060612",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "categories": ["education","productivity"],
+  "icons": [
+    {"src": "icons/icon.svg",  "sizes": "any",        "type": "image/svg+xml", "purpose": "any maskable"},
+    {"src": "assets/logo.png", "sizes": "192x192",    "type": "image/png",     "purpose": "any maskable"},
+    {"src": "assets/logo.png", "sizes": "512x512",    "type": "image/png",     "purpose": "any maskable"}
+  ],
+  "screenshots": [
+    {"src": "assets/logo.png", "sizes": "512x512", "type": "image/png", "form_factor": "narrow"}
+  ],
+  "shortcuts": [
+    {"name": "My Classes",   "url": "/index.html#classes",    "description": "Go to Classes"},
+    {"name": "AI Tutor",     "url": "/index.html#aif",        "description": "Open AI Tools"},
+    {"name": "Mock Test",    "url": "/tools/mock-test.html",  "description": "Take a Mock Test"},
+    {"name": "Smart Notes",  "url": "/notes/index.html",      "description": "Generate Notes"},
+    {"name": "Dashboard",    "url": "/dashboard/index.html",  "description": "My Dashboard"}
+  ],
+  "related_applications": [
+    {"platform": "play", "url": "https://median.co/share/bneyddw#apk", "id": "com.studysuperz.app"}
+  ],
+  "prefer_related_applications": false
+}
