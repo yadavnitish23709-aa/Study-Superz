@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Daily Updates | Study Superz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--b:rgba(255,255,255,.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;padding:13px 22px;background:rgba(6,6,18,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.bk{padding:7px 14px;border-radius:8px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;text-decoration:none;}
+.nt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;margin-right:auto;}
+.refresh-badge{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:var(--a4);}
+.main{max-width:900px;margin:0 auto;padding:32px 20px;}
+.hd{text-align:center;margin-bottom:28px;}
+.tag{display:inline-block;padding:4px 14px;border-radius:100px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);font-size:10px;font-weight:700;color:var(--a3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;margin-bottom:8px;}
+.sub{color:var(--t2);font-size:.9rem;}
+.tabs{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;}
+.tabbtn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--b);background:var(--g);color:var(--t2);white-space:nowrap;}
+.tabbtn.active{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.35);color:var(--a);}
+.feed-card{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:18px;margin-bottom:12px;transition:all .2s;}
+.feed-card:hover{border-color:rgba(255,255,255,.15);}
+.feed-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.feed-src{font-size:10px;font-weight:700;color:var(--a2);padding:2px 8px;border-radius:4px;background:rgba(6,182,212,.1);}
+.feed-time{font-size:11px;color:var(--t3);}
+.feed-title{font-weight:700;font-size:.92rem;margin-bottom:6px;line-height:1.4;}
+.feed-title a{color:var(--t);text-decoration:none;}
+.feed-title a:hover{color:var(--a2);}
+.feed-desc{font-size:12px;color:var(--t2);line-height:1.6;}
+.loading{text-align:center;padding:50px 20px;color:var(--t3);}
+.spin{display:inline-block;animation:sp 1s linear infinite;font-size:2rem;}
+@keyframes sp{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:40px;color:var(--t3);font-size:13px;}
+.syl-banner{background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(6,182,212,.05));border:1px solid rgba(124,58,237,.2);border-radius:14px;padding:16px 18px;margin-bottom:20px;font-size:13px;color:var(--t2);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="bk">← Back</a>
+  <span class="nt">📰 Daily Study Updates</span>
+  <span class="refresh-badge" id="refresh-time">Loading...</span>
+</nav>
+<div class="main">
+  <div class="hd">
+    <div class="tag">📚 CBSE · NCERT · Competitive Exams</div>
+    <div class="title">Latest Education News & Guidelines</div>
+    <div class="sub">Auto-refreshes every visit. Stay updated with official notifications, exam dates, and syllabus changes.</div>
+  </div>
+  <div class="syl-banner">ℹ️ Pulled from official education RSS feeds and updated automatically. Always cross-check with <a href="https://cbse.gov.in" target="_blank" style="color:var(--a2)">cbse.gov.in</a> for official notices.</div>
+  <div class="tabs">
+    <button class="tabbtn active" onclick="loadFeed('cbse',this)">📋 CBSE Updates</button>
+    <button class="tabbtn" onclick="loadFeed('exam',this)">🏆 Exam News</button>
+    <button class="tabbtn" onclick="loadFeed('edu',this)">🎓 General Education</button>
+  </div>
+  <div id="feed-container"><div class="loading"><div class="spin">⏳</div><div>Loading latest updates...</div></div></div>
+</div>
+
+<script>
+/* Free RSS-to-JSON proxy — no API key required for light usage */
+const RSS_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+const FEEDS = {
+  cbse: [
+    'https://www.cbse.gov.in/cbsenew/rss.xml',
+    'https://www.educationtimes.com/feed'
+  ],
+  exam: [
+    'https://www.jagranjosh.com/feed',
+    'https://www.careerpower.in/feed'
+  ],
+  edu: [
+    'https://www.education.gov.in/en/rss.xml',
+    'https://timesofindia.indiatimes.com/rssfeeds/913168846.cms'
+  ]
+};
+
+let currentTab = 'cbse';
+
+async function loadFeed(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const container = document.getElementById('feed-container');
+  container.innerHTML = '<div class="loading"><div class="spin">⏳</div><div>Loading latest updates...</div></div>';
+
+  const urls = FEEDS[tab] || FEEDS.cbse;
+  let allItems = [];
+
+  for (const url of urls) {
+    try {
+      const r = await fetch(RSS_PROXY + encodeURIComponent(url));
+      const d = await r.json();
+      if (d.status === 'ok' && d.items) {
+        allItems.push(...d.items.slice(0, 6).map(item => ({
+          ...item,
+          sourceName: d.feed?.title || 'Education News'
+        })));
+      }
+    } catch (e) {
+      console.log('Feed error:', url, e.message);
+    }
+  }
+
+  // Sort by date, newest first
+  allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+  if (!allItems.length) {
+    container.innerHTML = `<div class="empty">
+      📡 Unable to load live feed right now.<br/><br/>
+      Check official sources directly:<br/>
+      <a href="https://cbse.gov.in" target="_blank" style="color:#06b6d4">cbse.gov.in</a> ·
+      <a href="https://ncert.nic.in" target="_blank" style="color:#06b6d4">ncert.nic.in</a> ·
+      <a href="https://jeemain.nta.nic.in" target="_blank" style="color:#06b6d4">JEE Main</a> ·
+      <a href="https://neet.nta.nic.in" target="_blank" style="color:#06b6d4">NEET</a>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = allItems.slice(0, 15).map(item => {
+    const date = item.pubDate ? new Date(item.pubDate) : new Date();
+    const timeAgo = getTimeAgo(date);
+    const desc = (item.description || item.content || '').replace(/<[^>]*>/g, '').slice(0, 140);
+    return `<div class="feed-card">
+      <div class="feed-meta">
+        <span class="feed-src">${item.sourceName}</span>
+        <span class="feed-time">${timeAgo}</span>
+      </div>
+      <div class="feed-title"><a href="${item.link}" target="_blank">${item.title}</a></div>
+      <div class="feed-desc">${desc}...</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('refresh-time').textContent = '✅ Updated ' + new Date().toLocaleTimeString('en-IN');
+  localStorage.setItem('ss_feed_cache_' + tab, JSON.stringify({ items: allItems, ts: Date.now() }));
+}
+
+function getTimeAgo(date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+/* Try cache first for instant load, then refresh in background */
+function tryCacheFirst(tab) {
+  const cached = localStorage.getItem('ss_feed_cache_' + tab);
+  if (cached) {
+    try {
+      const { items, ts } = JSON.parse(cached);
+      if (Date.now() - ts < 3600000) { // cache valid for 1 hour
+        const container = document.getElementById('feed-container');
+        container.innerHTML = items.slice(0, 15).map(item => {
+          const date = item.pubDate ? new Date(item.pubDate) : new Date();
+          const desc = (item.description || item.content || '').replace(/<[^>]*>/g, '').slice(0, 140);
+          return `<div class="feed-card">
+            <div class="feed-meta"><span class="feed-src">${item.sourceName}</span><span class="feed-time">${getTimeAgo(date)}</span></div>
+            <div class="feed-title"><a href="${item.link}" target="_blank">${item.title}</a></div>
+            <div class="feed-desc">${desc}...</div>
+          </div>`;
+        }).join('');
+        document.getElementById('refresh-time').textContent = '📦 Cached · refreshing...';
+        return true;
+      }
+    } catch(e) {}
+  }
+  return false;
+}
+
+// Init
+tryCacheFirst('cbse');
+loadFeed('cbse');
+
+// Auto-refresh every 30 minutes if page stays open
+setInterval(() => loadFeed(currentTab), 1800000);
+</script>
+</body>
+</html>
