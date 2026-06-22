@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mock Test Engine | Study Superz</title>
+<link rel="manifest" href="../manifest.json"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#060612;--bg2:#0d0d20;--bg3:#12122a;--a:#7c3aed;--a2:#06b6d4;--a3:#f59e0b;--a4:#10b981;--t:#f1f5f9;--t2:#94a3b8;--t3:#475569;--g:rgba(255,255,255,.04);--g2:rgba(255,255,255,.08);--b:rgba(255,255,255,.08);--b2:rgba(124,58,237,.3);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;padding:14px 28px;background:rgba(6,6,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:12px;}
+.bk{padding:8px 16px;border-radius:8px;background:var(--g);border:1px solid var(--b);color:var(--t2);font-size:13px;text-decoration:none;}
+.bk:hover{background:var(--g2);color:var(--t);}
+.nt{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;margin-right:auto;}
+.aibdg{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:#10b981;}
+
+/* SETUP */
+#setup{max-width:720px;margin:40px auto;padding:0 20px;}
+.setup-title{font-family:'Syne',sans-serif;font-weight:800;font-size:2.2rem;text-align:center;margin-bottom:8px;}
+.setup-title span{background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.setup-sub{text-align:center;color:var(--t2);margin-bottom:36px;font-size:.95rem;}
+.setup-card{background:var(--g);border:1px solid var(--b);border-radius:18px;padding:24px;margin-bottom:16px;}
+.sc-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.opts{display:flex;flex-wrap:wrap;gap:8px;}
+.opt{padding:8px 16px;border-radius:9px;border:1px solid var(--b);background:var(--g);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.opt:hover{border-color:var(--b2);background:rgba(124,58,237,.08);color:var(--t);}
+.opt.sel{border-color:var(--a);background:rgba(124,58,237,.18);color:var(--t);}
+.range-row{display:flex;align-items:center;gap:14px;}
+.range-row input[type=range]{flex:1;accent-color:var(--a);}
+.rval{font-family:'Space Mono',monospace;font-size:15px;color:var(--a);font-weight:700;min-width:44px;}
+.start-btn{width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:800;font-size:17px;border:none;cursor:pointer;margin-top:8px;transition:all .3s;box-shadow:0 8px 24px rgba(124,58,237,.3);}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,58,237,.5);}
+
+/* LOADING */
+#loading{display:none;text-align:center;padding:100px 20px;}
+.spin{font-size:3rem;animation:spin 1s linear infinite;display:inline-block;margin-bottom:16px;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.load-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;margin-bottom:8px;}
+.load-sub{color:var(--t2);font-size:13px;}
+
+/* TEST */
+#test{display:none;max-width:960px;margin:0 auto;padding:20px;}
+.test-hdr{display:flex;align-items:center;gap:14px;background:var(--g);border:1px solid var(--b);border-radius:16px;padding:14px 22px;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.test-info{font-size:13px;color:var(--t2);}.test-info strong{color:var(--t);}
+.timer{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--a3);margin-left:auto;}
+.timer.red{color:#ef4444;animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.prog-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:20px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:2px;transition:width .3s;}
+.test-layout{display:grid;grid-template-columns:1fr 270px;gap:18px;}
+.q-card{background:var(--g);border:1px solid var(--b);border-radius:20px;padding:26px;}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.q-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--t3);}
+.q-marks{font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;background:rgba(16,185,129,.15);color:var(--a4);}
+.q-text{font-size:1.05rem;font-weight:600;margin-bottom:20px;line-height:1.6;}
+.q-opts{display:flex;flex-direction:column;gap:9px;}
+.qo{padding:13px 15px;border-radius:11px;cursor:pointer;border:1px solid var(--b);background:var(--g);font-size:14px;transition:all .2s;text-align:left;color:var(--t);display:flex;align-items:center;gap:10px;}
+.qo:hover{border-color:var(--b2);background:rgba(124,58,237,.06);}
+.qo.sel{border-color:var(--a);background:rgba(124,58,237,.15);color:var(--t);}
+.qo.correct{border-color:rgba(16,185,129,.6);background:rgba(16,185,129,.14);color:var(--a4);}
+.qo.wrong{border-color:rgba(239,68,68,.6);background:rgba(239,68,68,.12);color:#ef4444;}
+.onum{width:28px;height:28px;border-radius:50%;border:2px solid var(--b);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;transition:all .2s;}
+.qo.sel .onum{border-color:var(--a);background:var(--a);color:#fff;}
+.qo.correct .onum{border-color:var(--a4);background:var(--a4);color:#fff;}
+.qo.wrong .onum{border-color:#ef4444;background:#ef4444;color:#fff;}
+.q-exp{margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.2);font-size:13px;color:var(--t2);display:none;}
+.q-nav{display:flex;gap:10px;margin-top:18px;}
+.nav-btn{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+.prev-btn{background:var(--g2);color:var(--t2);}
+.next-btn{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;}
+.submit-btn{background:linear-gradient(135deg,var(--a3),#ef4444);color:#fff;}
+/* palette */
+.palette{background:var(--g);border:1px solid var(--b);border-radius:20px;padding:18px;}
+.pal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:14px;}
+.pal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px;}
+.pb{width:100%;aspect-ratio:1;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--b);background:var(--g);color:var(--t3);transition:all .2s;}
+.pb:hover{border-color:var(--b2);}
+.pb.ans{background:rgba(124,58,237,.22);border-color:var(--a);color:var(--t);}
+.pb.cur{border-color:var(--a2);color:var(--a2);box-shadow:0 0 0 2px rgba(6,182,212,.25);}
+.pal-leg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.leg{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);}
+.ld{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.sub-all{width:100%;padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--a3),#ef4444);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;}
+
+/* RESULT */
+#result{display:none;max-width:820px;margin:36px auto;padding:0 20px;}
+.res-card{background:var(--g);border:1px solid var(--b);border-radius:24px;padding:38px;text-align:center;margin-bottom:22px;}
+.res-score{font-family:'Syne',sans-serif;font-weight:800;font-size:3.8rem;background:linear-gradient(135deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.res-lbl{font-size:1.1rem;color:var(--t2);margin-bottom:22px;}
+.res-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.rs{background:var(--bg3);border-radius:13px;padding:14px;text-align:center;}
+.rs .n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;}
+.rs .l{font-size:11px;color:var(--t3);margin-top:3px;}
+.rs.c .n{color:var(--a4);}
+.rs.w .n{color:#ef4444;}
+.rs.s .n{color:var(--t3);}
+.rs.t .n{color:var(--a3);}
+.rev-card{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:20px;margin-bottom:10px;}
+.rev-qn{font-weight:600;font-size:.92rem;margin-bottom:11px;}
+.rev-ans{font-size:13px;padding:8px 11px;border-radius:7px;margin-bottom:5px;}
+.rev-ans.c{background:rgba(16,185,129,.1);color:var(--a4);}
+.rev-ans.w{background:rgba(239,68,68,.08);color:#ef4444;}
+.rev-exp{font-size:12px;color:var(--t2);padding:8px 12px;background:var(--bg3);border-radius:7px;margin-top:7px;}
+.rnew-btn{padding:13px 28px;border-radius:11px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-weight:800;font-size:15px;border:none;cursor:pointer;margin:6px;}
+.rrev-btn{padding:13px 28px;border-radius:11px;background:var(--g2);border:1px solid var(--b);color:var(--t2);font-weight:700;font-size:15px;cursor:pointer;margin:6px;}
+@media(max-width:768px){
+  nav{padding:11px 14px;}
+  .test-layout{grid-template-columns:1fr;}
+  .palette{display:none;}
+  .res-stats{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="bk">← Back</a>
+  <span class="nt">🎯 Mock Test Engine</span>
+  <span class="aibdg">✅ Gemini AI — Free</span>
+</nav>
+
+<!-- SETUP -->
+<div id="setup">
+  <h1 class="setup-title">Custom <span>Mock Test</span></h1>
+  <p class="setup-sub">AI generates unique questions every time. Select subject, difficulty and question count.</p>
+
+  <div class="setup-card">
+    <div class="sc-title">📚 Select Subject</div>
+    <div class="opts" id="subj-opts"></div>
+  </div>
+  <div class="setup-card">
+    <div class="sc-title">🎯 Difficulty</div>
+    <div class="opts" id="diff-opts">
+      <button class="opt sel" data-v="mixed" onclick="selOpt(this,'diff')">Mixed</button>
+      <button class="opt" data-v="easy" onclick="selOpt(this,'diff')">Easy</button>
+      <button class="opt" data-v="medium" onclick="selOpt(this,'diff')">Medium</button>
+      <button class="opt" data-v="hard" onclick="selOpt(this,'diff')">Hard</button>
+    </div>
+  </div>
+  <div class="setup-card">
+    <div class="sc-title">❓ Questions: <span id="qn-disp" style="color:var(--a)">10</span></div>
+    <div class="range-row">
+      <input type="range" min="5" max="30" value="10" step="5" oninput="cfg.qnum=+this.value;document.getElementById('qn-disp').textContent=this.value;document.getElementById('qn-disp2').textContent=this.value;"/>
+      <span class="rval" id="qn-disp2">10</span>
+    </div>
+  </div>
+  <div class="setup-card">
+    <div class="sc-title">⏱️ Time Limit: <span id="tm-disp" style="color:var(--a)">15 min</span></div>
+    <div class="range-row">
+      <input type="range" min="5" max="60" value="15" step="5" oninput="cfg.mins=+this.value;document.getElementById('tm-disp').textContent=this.value+' min';"/>
+    </div>
+  </div>
+  <button class="start-btn" onclick="startTest()">🚀 Generate AI Test &amp; Start</button>
+</div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spin">⚙️</div>
+  <div class="load-title" id="load-msg">Generating questions...</div>
+  <div class="load-sub">Powered by Google Gemini (Free)</div>
+</div>
+
+<!-- TEST -->
+<div id="test">
+  <div class="test-hdr">
+    <div class="test-info"><strong id="t-subj">Physics</strong> · <span id="t-qc">10 Qs</span> · <span id="t-diff">Mixed</span></div>
+    <div class="timer" id="timer">15:00</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+  <div class="test-layout">
+    <div>
+      <div class="q-card">
+        <div class="q-meta">
+          <span class="q-num" id="q-num">Q1 of 10</span>
+          <span class="q-marks">+4 / -1</span>
+        </div>
+        <div class="q-text" id="q-text"></div>
+        <div class="q-opts" id="q-opts"></div>
+        <div class="q-exp" id="q-exp"></div>
+        <div class="q-nav">
+          <button class="nav-btn prev-btn" onclick="goQ(-1)">← Prev</button>
+          <button class="nav-btn next-btn" id="next-btn" onclick="goQ(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+    <div class="palette">
+      <div class="pal-title">📋 Question Palette</div>
+      <div class="pal-grid" id="palette"></div>
+      <div class="pal-leg">
+        <div class="leg"><div class="ld" style="background:rgba(124,58,237,.22);border:1px solid var(--a)"></div>Answered</div>
+        <div class="leg"><div class="ld" style="background:var(--g);border:1px solid var(--b)"></div>Not Answered</div>
+        <div class="leg"><div class="ld" style="border:1px solid var(--a2)"></div>Current</div>
+      </div>
+      <button class="sub-all" onclick="submitTest()">Submit Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result">
+  <div class="res-card">
+    <div style="font-size:3.5rem;margin-bottom:14px;" id="res-ico">🏆</div>
+    <div class="res-score" id="res-score">0/0</div>
+    <div class="res-lbl" id="res-lbl">Test Complete!</div>
+    <div class="res-stats">
+      <div class="rs c"><div class="n" id="r-c">0</div><div class="l">Correct</div></div>
+      <div class="rs w"><div class="n" id="r-w">0</div><div class="l">Wrong</div></div>
+      <div class="rs s"><div class="n" id="r-s">0</div><div class="l">Skipped</div></div>
+      <div class="rs t"><div class="n" id="r-t">0m</div><div class="l">Time Used</div></div>
+    </div>
+    <button class="rnew-btn" onclick="location.reload()">🔄 New Test</button>
+    <button class="rrev-btn" onclick="showReview()">📋 Review Answers</button>
+  </div>
+  <div id="rev-area"></div>
+</div>
+
+<script>
+/* ── CONFIG ── */
+const GEMINI_KEY = 'AIzaSyB8RN6LwTx9Y0X9_Ahi3bNriHtguJVAi1CCrRu21wxoEUyagyg';
+
+const SUBJECTS = [
+  {n:'Physics',i:'⚡'},{n:'Chemistry',i:'⚗️'},{n:'Biology',i:'🧬'},
+  {n:'Mathematics',i:'📐'},{n:'English',i:'📝'},{n:'History',i:'🏛️'},
+  {n:'Geography',i:'🌏'},{n:'Economics',i:'📊'},{n:'Political Science',i:'⚖️'},
+  {n:'Computer Science',i:'💻'},{n:'Accountancy',i:'🧾'},{n:'Business Studies',i:'💼'},
+];
+
+/* ── BUILT-IN QUESTION BANK (fallback when AI unavailable) ── */
+const QB = {
+  Physics:[
+    {q:"Newton's Second Law of Motion states:",o:["F = ma","F = mv","F = m/a","F = m+a"],a:0,e:"F = ma — Force equals mass times acceleration (Newton's 2nd Law)."},
+    {q:"The SI unit of force is:",o:["Joule","Newton","Watt","Pascal"],a:1,e:"Newton (N) is the SI unit of force. 1 N = 1 kg·m/s²"},
+    {q:"Speed of light in vacuum is:",o:["3×10⁶ m/s","3×10⁸ m/s","3×10¹⁰ m/s","3×10⁴ m/s"],a:1,e:"Speed of light c = 3×10⁸ m/s in vacuum."},
+    {q:"Which law explains rocket propulsion?",o:["Newton's 1st Law","Newton's 2nd Law","Newton's 3rd Law","Law of Gravitation"],a:2,e:"Newton's 3rd Law — every action has equal and opposite reaction."},
+    {q:"Ohm's Law states V =",o:["I/R","IR","I+R","I-R"],a:1,e:"V = IR — Voltage = Current × Resistance (Ohm's Law)."},
+    {q:"The unit of electric current is:",o:["Volt","Watt","Ampere","Ohm"],a:2,e:"Ampere (A) is the SI unit of electric current."},
+    {q:"Kinetic energy formula is:",o:["mgh","½mv²","mv","Fs"],a:1,e:"KE = ½mv² — half × mass × velocity squared."},
+    {q:"Which instrument measures electric current?",o:["Voltmeter","Ammeter","Galvanometer","Thermometer"],a:1,e:"Ammeter measures electric current and is connected in series."},
+    {q:"The frequency of AC supply in India is:",o:["40 Hz","50 Hz","60 Hz","100 Hz"],a:1,e:"India uses 50 Hz AC power supply frequency."},
+    {q:"Gravitational acceleration on Earth surface is approximately:",o:["9.8 m/s²","8.9 m/s²","10.8 m/s²","11 m/s²"],a:0,e:"g ≈ 9.8 m/s² on Earth's surface (often approximated as 10 m/s²)."},
+    {q:"Potential energy stored in a spring is:",o:["½kx²","kx","kx²","½kx"],a:0,e:"Elastic PE = ½kx² where k is spring constant and x is displacement."},
+    {q:"The phenomenon of light bending around corners is:",o:["Reflection","Refraction","Diffraction","Dispersion"],a:2,e:"Diffraction is the bending of light around edges and through openings."},
+    {q:"Total internal reflection occurs when:",o:["Light goes from denser to rarer medium","Light goes from rarer to denser medium","Angle is 90°","None of these"],a:0,e:"Total internal reflection occurs when light travels from denser to rarer medium at/beyond critical angle."},
+    {q:"Which mirror is used in vehicle headlights?",o:["Plane mirror","Concave mirror","Convex mirror","Parabolic mirror"],a:1,e:"Concave mirrors are used in headlights to produce a parallel beam of light."},
+    {q:"Electromagnetic induction was discovered by:",o:["Newton","Faraday","Edison","Tesla"],a:1,e:"Michael Faraday discovered electromagnetic induction in 1831."},
+  ],
+  Chemistry:[
+    {q:"What is the atomic number of Carbon?",o:["4","6","8","12"],a:1,e:"Carbon has atomic number 6 — 6 protons in its nucleus."},
+    {q:"pH of pure water at 25°C is:",o:["0","7","14","6"],a:1,e:"Pure water is neutral with pH = 7 at 25°C."},
+    {q:"Baking soda is chemically known as:",o:["NaCl","NaOH","NaHCO₃","Na₂CO₃"],a:2,e:"Baking soda = Sodium hydrogen carbonate (NaHCO₃)."},
+    {q:"Which gas is produced when zinc reacts with dilute HCl?",o:["O₂","CO₂","H₂","Cl₂"],a:2,e:"Zn + 2HCl → ZnCl₂ + H₂↑ — Hydrogen gas is produced."},
+    {q:"The most reactive metal in the reactivity series is:",o:["Iron","Zinc","Potassium","Copper"],a:2,e:"Potassium (K) is the most reactive metal — it reacts violently with water."},
+    {q:"Rusting of iron is an example of:",o:["Physical change","Oxidation reaction","Reduction reaction","Decomposition"],a:1,e:"Rusting is oxidation — Fe reacts with O₂ and water to form Fe₂O₃ (rust)."},
+    {q:"The formula for sulfuric acid is:",o:["H₂SO₃","H₂SO₄","HNO₃","H₃PO₄"],a:1,e:"Sulfuric acid = H₂SO₄ (dihydrogen sulfate)."},
+    {q:"Bleaching powder is used to:",o:["Increase pH","Purify water","Generate electricity","Cook food"],a:1,e:"Bleaching powder (Ca(OCl)Cl) is used to purify drinking water by killing bacteria."},
+    {q:"Number of elements in modern periodic table:",o:["92","108","118","126"],a:2,e:"The modern periodic table has 118 confirmed elements."},
+    {q:"Which is the universal solvent?",o:["Ethanol","Water","Benzene","Acetone"],a:1,e:"Water is called the universal solvent as it dissolves more substances than any other liquid."},
+    {q:"Photosynthesis equation: 6CO₂ + 6H₂O + light →",o:["C₆H₁₂O₆ + H₂O","C₆H₁₂O₆ + 6O₂","CO₂ + H₂O","6CH₄ + 3O₂"],a:1,e:"Photosynthesis: 6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂"},
+    {q:"Valency of Calcium (Ca) is:",o:["1","2","3","4"],a:1,e:"Calcium has valency 2 — it loses 2 electrons to form Ca²⁺."},
+    {q:"Soap works by:",o:["Killing bacteria","Emulsification of oil","Dissolving everything","None"],a:1,e:"Soap emulsifies oils — hydrophilic head attaches to water, hydrophobic tail to oil."},
+    {q:"Which acid is found in lemon?",o:["Acetic acid","Citric acid","Tartaric acid","Lactic acid"],a:1,e:"Citric acid (C₆H₈O₇) is the acid found in lemons and other citrus fruits."},
+    {q:"Noble gases are in which group of periodic table?",o:["Group 1","Group 16","Group 17","Group 18"],a:3,e:"Noble gases (He, Ne, Ar, Kr, Xe, Rn) are in Group 18 — completely filled outer shells."},
+  ],
+  Biology:[
+    {q:"Powerhouse of the cell is:",o:["Nucleus","Ribosome","Mitochondria","Vacuole"],a:2,e:"Mitochondria produces ATP through cellular respiration — hence called the powerhouse."},
+    {q:"Photosynthesis occurs in:",o:["Mitochondria","Ribosomes","Chloroplasts","Nucleus"],a:2,e:"Photosynthesis happens in chloroplasts, which contain chlorophyll."},
+    {q:"DNA stands for:",o:["Deoxyribonucleic Acid","Diribonucleic Acid","Deoxyribose Nucleic Acid","None"],a:0,e:"DNA = Deoxyribonucleic Acid — the genetic material of living organisms."},
+    {q:"Which blood group is the universal donor?",o:["A","B","AB","O"],a:3,e:"Blood group O (negative) is the universal donor as it has no A/B antigens."},
+    {q:"Largest organ of the human body:",o:["Heart","Liver","Lungs","Skin"],a:3,e:"Skin is the largest organ, covering the entire body surface area (~1.5-2 m²)."},
+    {q:"Number of chromosomes in human cells:",o:["23","44","46","48"],a:2,e:"Human somatic cells have 46 chromosomes (23 pairs). Gametes have 23."},
+    {q:"Insulin is produced by:",o:["Liver","Thyroid","Pancreas","Kidney"],a:2,e:"Insulin is produced by the beta cells of Islets of Langerhans in the pancreas."},
+    {q:"The process by which plants make food is called:",o:["Respiration","Photosynthesis","Transpiration","Digestion"],a:1,e:"Photosynthesis — plants use sunlight, CO₂, and water to produce glucose and O₂."},
+    {q:"Which vitamin deficiency causes rickets?",o:["Vitamin A","Vitamin B","Vitamin C","Vitamin D"],a:3,e:"Vitamin D deficiency causes rickets — weak and soft bones, especially in children."},
+    {q:"Cell wall in plants is made of:",o:["Proteins","Cellulose","Lipids","Starch"],a:1,e:"Plant cell walls are primarily made of cellulose, a complex polysaccharide."},
+    {q:"Transpiration in plants occurs through:",o:["Roots","Stems","Stomata","Flowers"],a:2,e:"Transpiration — water loss from plants — primarily occurs through stomata on leaves."},
+    {q:"Bacteria are classified as:",o:["Eukaryotes","Prokaryotes","Viruses","Fungi"],a:1,e:"Bacteria are prokaryotes — they have no membrane-bound nucleus."},
+    {q:"Mitosis results in:",o:["4 haploid cells","2 identical diploid cells","2 haploid cells","4 identical cells"],a:1,e:"Mitosis produces 2 genetically identical diploid daughter cells for growth/repair."},
+    {q:"The building blocks of proteins are:",o:["Fatty acids","Amino acids","Nucleotides","Glucose"],a:1,e:"Proteins are made of amino acids linked by peptide bonds. There are 20 amino acids."},
+    {q:"Which organ filters blood in humans?",o:["Liver","Heart","Kidney","Lungs"],a:2,e:"Kidneys filter blood and remove waste as urine (approx 180L filtered daily)."},
+  ],
+  Mathematics:[
+    {q:"If a = 2 and b = 3, what is a² + b²?",o:["10","13","12","25"],a:1,e:"a² + b² = 4 + 9 = 13."},
+    {q:"Area of a circle with radius r is:",o:["2πr","πr²","πr/2","2πr²"],a:1,e:"Area of circle = πr² (pi times radius squared)."},
+    {q:"The quadratic formula for ax² + bx + c = 0 is:",o:["(-b ± √(b²-4ac))/2a","(-b ± √(b²+4ac))/2a","(b ± √(b²-4ac))/2a","(-b ± √(b²-4ac))/a"],a:0,e:"x = (-b ± √(b²-4ac))/2a — the quadratic formula."},
+    {q:"What is the HCF of 36 and 48?",o:["6","12","18","24"],a:1,e:"Factors: 36 = 2²×3², 48 = 2⁴×3. HCF = 2²×3 = 12."},
+    {q:"sin 90° = ?",o:["0","1","-1","√2/2"],a:1,e:"sin 90° = 1. Key values: sin 0°=0, sin 30°=1/2, sin 60°=√3/2, sin 90°=1."},
+    {q:"The sum of angles in a triangle is:",o:["90°","180°","270°","360°"],a:1,e:"Sum of interior angles of any triangle = 180°."},
+    {q:"√(169) = ?",o:["11","12","13","14"],a:2,e:"√169 = 13 because 13 × 13 = 169."},
+    {q:"If x + 5 = 12, then x = ?",o:["5","6","7","8"],a:2,e:"x = 12 - 5 = 7."},
+    {q:"Volume of a cube with side a is:",o:["a²","a³","3a","6a²"],a:1,e:"Volume of cube = a³ (side cubed)."},
+    {q:"What is 15% of 200?",o:["25","30","35","40"],a:1,e:"15% of 200 = (15/100) × 200 = 30."},
+    {q:"The slope of line y = 3x + 5 is:",o:["5","3","8","1/3"],a:1,e:"In y = mx + c form, slope m = 3 and y-intercept c = 5."},
+    {q:"LCM of 4 and 6 is:",o:["8","10","12","24"],a:2,e:"LCM(4,6) = 12 because 12 is the smallest number divisible by both 4 and 6."},
+    {q:"Pythagorean theorem: a² + b² = ?",o:["c","c²","2c","c³"],a:1,e:"a² + b² = c² — in a right triangle, sum of squares of legs = square of hypotenuse."},
+    {q:"cos 0° = ?",o:["0","1","-1","1/2"],a:1,e:"cos 0° = 1. Key values: cos 0°=1, cos 60°=1/2, cos 90°=0."},
+    {q:"The median of {3,5,7,9,11} is:",o:["5","7","9","6"],a:1,e:"Median of {3,5,7,9,11} is the middle value = 7 (when arranged in order)."},
+  ],
+  History:[
+    {q:"The French Revolution began in:",o:["1776","1789","1799","1804"],a:1,e:"The French Revolution began in 1789 with the Storming of the Bastille on July 14."},
+    {q:"First War of Indian Independence was in:",o:["1857","1885","1905","1919"],a:0,e:"The Revolt of 1857 (First War of Independence) was a major uprising against British rule."},
+    {q:"Mahatma Gandhi launched the Non-Cooperation Movement in:",o:["1917","1919","1920","1922"],a:2,e:"Gandhi launched the Non-Cooperation Movement in September 1920 against British rule."},
+    {q:"The Partition of India occurred in:",o:["1945","1946","1947","1948"],a:2,e:"India gained independence and was partitioned into India and Pakistan on August 14-15, 1947."},
+    {q:"Who wrote the Indian National Anthem 'Jana Gana Mana'?",o:["Bankim Chandra","Rabindranath Tagore","Sarojini Naidu","Vande Mataram"],a:1,e:"Jana Gana Mana was composed by Rabindranath Tagore and adopted as national anthem in 1950."},
+    {q:"The Salt March (Dandi March) was in:",o:["1928","1930","1932","1934"],a:1,e:"Gandhi's Dandi March (Salt March) took place from March 12 – April 6, 1930."},
+    {q:"Who is known as the 'Father of the Nation' in India?",o:["Jawaharlal Nehru","Bhagat Singh","Mahatma Gandhi","Subhas Chandra Bose"],a:2,e:"Mahatma Gandhi (Mohandas Karamchand Gandhi) is called the Father of the Nation."},
+    {q:"The Battle of Plassey was fought in:",o:["1757","1764","1799","1805"],a:0,e:"Battle of Plassey (1757) — British East India Company defeated Siraj ud-Daulah, beginning British dominance in India."},
+    {q:"Indian Constitution came into force on:",o:["August 15, 1947","January 26, 1950","November 26, 1949","December 31, 1949"],a:1,e:"Indian Constitution came into force on January 26, 1950 — celebrated as Republic Day."},
+    {q:"The Quit India Movement was launched in:",o:["1940","1941","1942","1943"],a:2,e:"Quit India Movement was launched on August 8, 1942 at the Bombay Session of the Congress."},
+  ],
+  Geography:[
+    {q:"The largest continent in the world is:",o:["Africa","Australia","Europe","Asia"],a:3,e:"Asia is the largest continent — covers about 30% of Earth's total land area."},
+    {q:"Which river is the longest in the world?",o:["Amazon","Nile","Ganga","Mississippi"],a:1,e:"The Nile River (6,650 km) in Africa is considered the longest river in the world."},
+    {q:"Tropic of Cancer passes through which Indian state?",o:["Kerala","Rajasthan","Gujarat","Bihar"],a:2,e:"Tropic of Cancer (23.5°N) passes through 8 Indian states including Gujarat, Rajasthan, Madhya Pradesh."},
+    {q:"The capital of India is:",o:["Mumbai","Kolkata","Chennai","New Delhi"],a:3,e:"New Delhi is the capital city of India and serves as the seat of the central government."},
+    {q:"Which is the smallest continent?",o:["Europe","Antarctica","Australia","South America"],a:2,e:"Australia is the smallest continent (also called Oceania). It is about 7.7 million km²."},
+    {q:"The Himalayan mountain range is located in:",o:["Western India","Eastern India","Northern India","Southern India"],a:2,e:"The Himalayas are in Northern India, running along the northern border, separating India from China."},
+    {q:"India's longest river is:",o:["Brahmaputra","Ganga","Godavari","Yamuna"],a:1,e:"The Ganga (2,525 km) is India's longest river, flowing through the northern plains."},
+    {q:"Which ocean is the largest?",o:["Atlantic","Indian","Arctic","Pacific"],a:3,e:"The Pacific Ocean is the largest, covering about 165 million km² (more than all land combined)."},
+    {q:"The Deccan Plateau is located in:",o:["North India","Central India","South India","West India"],a:2,e:"The Deccan Plateau covers most of South India, bounded by Eastern and Western Ghats."},
+    {q:"Monsoon in India arrives first in:",o:["Delhi","Mumbai","Kolkata","Kerala"],a:3,e:"The South-West monsoon arrives first in Kerala (June 1) and progresses northward."},
+  ],
+  'Computer Science':[
+    {q:"HTML stands for:",o:["HyperText Markup Language","High Text Making Language","HyperText Making Links","Hyperlink and Text Markup Language"],a:0,e:"HTML = HyperText Markup Language — the standard language for creating web pages."},
+    {q:"Which is NOT a programming language?",o:["Python","Java","HTML","C++"],a:2,e:"HTML is a markup language, not a programming language. Python, Java, C++ are programming languages."},
+    {q:"CPU stands for:",o:["Central Processing Unit","Core Processing Unit","Central Program Unit","Computer Processing Unit"],a:0,e:"CPU = Central Processing Unit — the 'brain' of the computer that executes instructions."},
+    {q:"Binary number 1010 in decimal is:",o:["8","10","12","14"],a:1,e:"1010₂ = 1×8 + 0×4 + 1×2 + 0×1 = 8+0+2+0 = 10₁₀"},
+    {q:"Which is a search engine?",o:["Facebook","Twitter","Google","WhatsApp"],a:2,e:"Google is a search engine. Facebook, Twitter, WhatsApp are social media platforms."},
+    {q:"1 GB equals:",o:["1000 MB","1024 MB","512 MB","2048 MB"],a:1,e:"1 GB = 1024 MB (binary), though commercially 1 GB = 1000 MB is often used."},
+    {q:"What does 'www' stand for?",o:["World Wide Web","World Web Wire","Wide World Web","Web World Wire"],a:0,e:"www = World Wide Web — the information system on the Internet using URLs and HTTP."},
+    {q:"Which company developed Python?",o:["Microsoft","Google","Guido van Rossum","Apple"],a:2,e:"Python was created by Guido van Rossum and first released in 1991."},
+    {q:"RAM stands for:",o:["Random Access Memory","Read All Memory","Random Access Monitor","Read Access Memory"],a:0,e:"RAM = Random Access Memory — temporary, volatile memory that stores data currently in use."},
+    {q:"Which is used to store data permanently?",o:["RAM","Cache","ROM","Register"],a:2,e:"ROM (Read Only Memory) stores data permanently and doesn't lose data when power is off."},
+  ],
+  Economics:[
+    {q:"GDP stands for:",o:["Gross Domestic Product","General Domestic Product","Gross Development Product","General Development Product"],a:0,e:"GDP = Gross Domestic Product — total value of goods/services produced in a country in a year."},
+    {q:"The Reserve Bank of India was established in:",o:["1930","1935","1947","1950"],a:1,e:"RBI was established on April 1, 1935 and nationalised in 1949. It's India's central bank."},
+    {q:"Inflation means:",o:["Rise in prices","Fall in prices","Rise in production","Fall in unemployment"],a:0,e:"Inflation is the sustained rise in the general price level of goods and services over time."},
+    {q:"The term 'Laissez-faire' is associated with:",o:["Socialism","Capitalism","Communism","Mixed Economy"],a:1,e:"Laissez-faire ('let it be') is a capitalism principle — minimal government intervention in economy."},
+    {q:"GST stands for:",o:["Goods and Services Tax","General Sales Tax","Government Sales Tax","Goods Supply Tax"],a:0,e:"GST = Goods and Services Tax — a comprehensive indirect tax in India introduced in July 2017."},
+    {q:"Demand curve slopes:",o:["Upward","Downward","Horizontal","Vertical"],a:1,e:"Demand curve slopes downward — as price rises, quantity demanded falls (inverse relationship)."},
+    {q:"The Human Development Index (HDI) measures:",o:["GDP only","Life expectancy only","GDP, Education, and Life Expectancy","Employment levels"],a:2,e:"HDI measures human development: Life expectancy, Education (literacy/schooling), and GNI per capita."},
+    {q:"What is the policy rate set by RBI called?",o:["CRR","SLR","Repo Rate","Bank Rate"],a:2,e:"Repo Rate is the rate at which RBI lends money to commercial banks for short-term needs."},
+    {q:"Monopoly means:",o:["Many sellers","Single seller","Duopoly","Perfect competition"],a:1,e:"Monopoly = single seller controlling the entire market supply of a product or service."},
+    {q:"'Poverty line' in India is defined by:",o:["World Bank","NITI Aayog","Planning Commission","RBI"],a:1,e:"NITI Aayog (formerly Planning Commission) defines and estimates the poverty line in India."},
+  ],
+};
+
+/* ── DEFAULT Q-SETS FOR MISSING SUBJECTS ── */
+['English','Political Science','Accountancy','Business Studies'].forEach(s=>{QB[s]=QB.History;});
+
+/* ── STATE ── */
+const cfg = {subj:'Physics', diff:'mixed', qnum:10, mins:15};
+let QS=[], curQ=0, uAns={}, tmrInt=null, startTime=null, finished=false;
+
+/* ── BUILD SETUP ── */
+const sg=document.getElementById('subj-opts');
+SUBJECTS.forEach((s,i)=>{
+  sg.innerHTML+=`<button class="opt${i===0?' sel':''}" data-v="${s.n}" onclick="selOpt(this,'subj')">${s.i} ${s.n}</button>`;
+});
+function selOpt(btn,type){btn.closest('.opts').querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');cfg[type]=btn.dataset.v;}
+
+/* ── START TEST ── */
+async function startTest(){
+  const subj=document.querySelector('#subj-opts .sel')?.dataset.v||'Physics';
+  cfg.subj=subj;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('load-msg').textContent=`Generating ${cfg.qnum} ${subj} questions with AI...`;
+
+  QS = await generateQuestions(subj, cfg.qnum, cfg.diff);
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('test').style.display='block';
+  document.getElementById('t-subj').textContent=subj;
+  document.getElementById('t-qc').textContent=cfg.qnum+' Qs';
+  document.getElementById('t-diff').textContent=cfg.diff;
+  uAns={}; curQ=0; finished=false; startTime=Date.now();
+  buildPalette(); showQ(0); startTimer();
+}
+
+/* ── GENERATE QUESTIONS (Gemini → fallback bank) ── */
+async function generateQuestions(subj, num, diff){
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:`Generate exactly ${num} MCQ questions for ${subj} (${diff} difficulty, Class 10 NCERT level). Return ONLY a JSON array, no markdown, no extra text:\n[{"q":"question","o":["A","B","C","D"],"a":0,"e":"brief explanation"}]\nWhere "a" is the index (0-3) of the correct option.`}]}],
+        generationConfig:{maxOutputTokens:2000,temperature:0.7}
+      })
+    });
+    const d=await res.json();
+    const txt=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const clean=txt.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    if(Array.isArray(parsed)&&parsed.length>=num*.7) return shuffle(parsed).slice(0,num);
+  }catch(e){console.log('AI generation failed, using question bank:',e.message);}
+  /* FALLBACK — built-in question bank */
+  const bank=QB[subj]||QB.Physics;
+  return shuffle([...bank]).slice(0,Math.min(num,bank.length));
+}
+
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+/* ── PALETTE ── */
+function buildPalette(){
+  const pg=document.getElementById('palette');pg.innerHTML='';
+  QS.forEach((_,i)=>{pg.innerHTML+=`<button class="pb${i===0?' cur':''}" id="pb${i}" onclick="showQ(${i})">${i+1}</button>`;});
+}
+
+/* ── SHOW QUESTION ── */
+function showQ(i){
+  if(i<0||i>=QS.length)return;
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('cur'));
+  document.getElementById('pb'+i)?.classList.add('cur');
+  curQ=i;
+  const q=QS[i];
+  document.getElementById('q-num').textContent=`Q${i+1} of ${QS.length}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-exp').style.display='none';
+  document.getElementById('prog-fill').style.width=((i+1)/QS.length*100)+'%';
+  const opts=document.getElementById('q-opts');
+  opts.innerHTML=q.o.map((o,j)=>`<button class="qo${uAns[i]===j?' sel':''}" onclick="selAns(${i},${j},this)"><span class="onum">${String.fromCharCode(65+j)}</span>${o}</button>`).join('');
+  const nb=document.getElementById('next-btn');
+  if(i===QS.length-1){nb.textContent='Submit Test';nb.className='nav-btn submit-btn';nb.onclick=submitTest;}
+  else{nb.textContent='Next →';nb.className='nav-btn next-btn';nb.onclick=()=>goQ(1);}
+}
+
+function selAns(qi,oi,btn){
+  document.querySelectorAll('.qo').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
+  uAns[qi]=oi;document.getElementById('pb'+qi)?.classList.add('ans');
+}
+function goQ(d){const n=curQ+d;if(n>=0&&n<QS.length)showQ(n);}
+
+/* ── TIMER ── */
+function startTimer(){
+  let secs=cfg.mins*60;
+  tmrInt=setInterval(()=>{
+    secs--;
+    const m=Math.floor(secs/60),s=secs%60;
+    const el=document.getElementById('timer');
+    el.textContent=`${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+    if(secs<=60)el.classList.add('red');
+    if(secs<=0){clearInterval(tmrInt);if(!finished)submitTest();}
+  },1000);
+}
+
+/* ── SUBMIT ── */
+function submitTest(){
+  if(finished)return;finished=true;clearInterval(tmrInt);
+  let cor=0,wro=0,ski=0;
+  QS.forEach((q,i)=>{if(uAns[i]===undefined)ski++;else if(uAns[i]===q.a)cor++;else wro++;});
+  const sc=cor*4-wro;const maxSc=QS.length*4;
+  const pct=Math.round(cor/QS.length*100);
+  const used=Math.round((Date.now()-startTime)/60000);
+  document.getElementById('test').style.display='none';
+  document.getElementById('result').style.display='block';
+  document.getElementById('res-score').textContent=`${sc}/${maxSc} (${pct}%)`;
+  document.getElementById('res-lbl').textContent=pct>=90?'Outstanding! 🌟':pct>=70?'Great Work! 👍':pct>=50?'Keep Practicing! 💪':'Need More Study 📚';
+  document.getElementById('res-ico').textContent=pct>=90?'🏆':pct>=70?'⭐':pct>=50?'💪':'📚';
+  document.getElementById('r-c').textContent=cor;document.getElementById('r-w').textContent=wro;
+  document.getElementById('r-s').textContent=ski;document.getElementById('r-t').textContent=used+'m';
+  window._reviewData={QS,uAns};
+}
+
+function showReview(){
+  const{QS,uAns}=window._reviewData||{};if(!QS)return;
+  const ra=document.getElementById('rev-area');
+  ra.innerHTML=`<h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;margin-bottom:18px;">📋 Detailed Answer Review</h2>`;
+  QS.forEach((q,i)=>{
+    const ch=uAns[i];const cor=ch===q.a;const skipped=ch===undefined;
+    ra.innerHTML+=`<div class="rev-card">
+      <div style="font-size:11px;color:var(--t3);font-family:'Space Mono',monospace;margin-bottom:7px;">Q${i+1} · ${skipped?'<span style="color:var(--t3)">Skipped</span>':cor?'<span style="color:var(--a4)">✓ Correct</span>':'<span style="color:#ef4444">✗ Wrong</span>'}</div>
+      <div class="rev-qn">${q.q}</div>
+      ${!skipped&&!cor?`<div class="rev-ans w">Your answer: ${q.o[ch]}</div>`:''}
+      <div class="rev-ans c">✓ Correct: ${q.o[q.a]}</div>
+      <div class="rev-exp">💡 ${q.e}</div>
+    </div>`;
+  });
+}
+
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&['u','s','i','j'].includes(e.key))e.preventDefault();if(e.key==='F12')e.preventDefault();});
+</script>
+</body>
+</html>
